@@ -616,7 +616,7 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                 }, null, 8, ["value", "options"])]), h("div", F, [v(i, M, {
                     default: g((() => [_(" 查看账单 ")])),
                     _: 1
-                })])], 64)), h("h1", R, " 入款(" + b(C(we).length) + "笔) ", 1), h("div", N, [v(p, {
+                })])], 8)), h("h2", R, " 入款(" + b(C(we).length) + "笔) ", 1), h("div", N, [v(p, {
                     loading: C(de),
                     size: "small",
                     bordered: "",
