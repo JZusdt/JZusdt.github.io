@@ -307,7 +307,7 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                                 y = o.round(c - m, 2),
                                 v = o.round(p - x, 2),
                                 g = {};
-                            return g.insBaseCount = c, g.insCurrenyCount = p, g.outBaseCount = m, g.outCurrencyCount = x, g.leftBaseCount = y, g.leftCurrencyCount = v, g.user = "" + (null != (s = null == (l = u[0].remark) ? void 0 : u[0].remark) ? s : "") + (null != (a = null == (r = u[0].remark) ? void 0 :  u[0].remark) ? a : ""), g.username = u[0].remark, g
+                            return g.insBaseCount = c, g.insCurrenyCount = p, g.outBaseCount = m, g.outCurrencyCount = x, g.leftBaseCount = y, g.leftCurrencyCount = v, g.user = u[0].remark, g
                         })),
                         l = {};
                     return l.group_content = n, l.group_len = t, l
