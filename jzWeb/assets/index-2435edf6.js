@@ -189,7 +189,7 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                     key: "baseAmount",
                     title: "金额",
                     align: "center",
-                    width: d ? void 0 : "110px",
+                    width: d ? void 0 : "90px",
                     render: e => ((e, t, n) => {
                         if (0 === e || 1 === t.rate)
                             return t.baseAmount;
@@ -223,7 +223,7 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                     key: "replyUser",
                     title: "标记人",
                     align: "center",
-                    width: d ? void 0 : "120px",
+                    width: d ? void 0 : "80px",
                     ellipsis: U,
                     render: e => {
                         var t,
@@ -246,6 +246,7 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                     key: "type",
                     title: "备注",
                     align: "center",
+                    width: d ? void 0 : "70px",
                     render: e => {
                     return v("span", null, [e.remark, null])
                     }
@@ -267,6 +268,7 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                     key: "baseAmount",
                     title: "金额",
                     align: "center",
+                    width: d ? void 0 : "90px",
                     render: e => De.value ? ((e, t) => {
                         if (t) {
                             return v("div", {
@@ -310,6 +312,7 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                     key: "type",
                     title: "备注",
                     align: "center",
+                    width: d ? void 0 : "70px",
                     render: e => {
                     return v("span", null, [e.remark, null])
                     }
@@ -334,6 +337,39 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                                 v = o.round(p - x, 2),
                                 g = {};
                             return g.insBaseCount = c, g.insCurrenyCount = p, g.outBaseCount = m, g.outCurrencyCount = x, g.leftBaseCount = y, g.leftCurrencyCount = v, g.user = "" + (null != (s = null == (l = u[0].user) ? void 0 : l.first_name) ? s : "") + (null != (a = null == (r = u[0].user) ? void 0 : r.last_name) ? a : ""), g.username = u[0].user.username, g
+                        })),
+                        l = {};
+                    return l.group_content = n, l.group_len = t, l
+                })),
+                KA = x((() => {
+                    const e = i(Ce.value.bills, "replyUser.id");
+                    let t = 0;
+            
+                  
+                    console.log(e)
+                    const n = Object.keys(e).map((n => {
+                            var l,
+                                s,
+                                r,
+                                a;
+                            t++;
+                            const u = e[n],
+                                i = u.filter((e => "in" === e.type)),
+                                c = i.reduce(((e, t) => t.baseAmount + e), 0),
+                                p = i.reduce(((e, t) => e + t.currenyAmount), 0),
+                                d = u.filter((e => "out" === e.type)),
+                                m = d.reduce(((e, t) => e + t.baseAmount), 0),
+                                x = d.reduce(((e, t) => e + t.currenyAmount), 0),
+                                y = o.round(c - m, 2),
+                                v = o.round(p - x, 2),
+                                g = {};
+                                if (typeof u[0].replyUser === 'undefined') {
+                                    t--;
+                                  return g
+                                }
+
+                            return g.insBaseCount = c, g.insCurrenyCount = p, g.outBaseCount = m, g.outCurrencyCount = x, g.leftBaseCount = y, g.leftCurrencyCount = v, g.user = "" + (null != (s = null == (l = u[0].replyUser) ? void 0 : l.first_name) ? s : "") + (null != (a = null == (r = u[0].replyUser) ? void 0 : r.last_name) ? a : ""), g.username = u[0].user.username, g
+
                         })),
                         l = {};
                     return l.group_content = n, l.group_len = t, l
@@ -403,7 +439,7 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                     align: "center",
                     render: e => v("div", null, [V(e.leftBaseCount, e.leftCurrencyCount.toFixed(2))])
                 }, {
-                    title: "用户",
+                    title: "标记",
                     key: "user",
                     align: "center",
                     render: e => {
@@ -443,7 +479,7 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                     align: "center"
                 },
                 ce = m([{
-                    title: "用户",
+                    title: "操作员",
                     key: "user",
                     align: "center",
                     render: e => {
@@ -512,7 +548,7 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                 t.groupId = ve.id;
                 const n = {};
                 n.params = t;
-                const l = await e.get("https://bot.lestvpn.co/jzWeb/bill/", n);
+                const l = await e.get("https://bot.lestvpn.co/jzWeb/bill2/", n);
                 if (l.bills)
                     l.bills.reverse(),
                     Ce.value = l;
@@ -558,15 +594,19 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                     };
                 M.onClick = Ee;
                 const E = {
-                        title: "按用户分类",
+                        title: "按操作员分类",
                         name: "1"
+                    },
+                    EA = {
+                        title: "按标记类分组",
+                        name: "11"
                     },
                     V = {
                         title: "按入款汇率分类",
                         name: "2"
                     },
                     Q = {
-                        title: "按入款汇率和用户分类",
+                        title: "按入款汇率和操作人分类",
                         name: "3"
                     },
                     Z = {
@@ -631,7 +671,8 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                     data: C(Be),
                     columns: C(P)
                 }, null, 8, ["loading", "data", "columns"])]), W, h("div", L, [v(T, null, {
-                    default: g((() => [v(x, E, {
+                    default: g((() => [
+                    v(x, E, {
                         default: g((() => [h("h2", X, " 共" + b(C(K).group_len) + "组 ", 1), h("div", $, [v(m, {
                             loading: C(de),
                             size: "small",
@@ -641,7 +682,17 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                             columns: C(q)
                         }, null, 8, ["loading", "data", "columns"])])])),
                         _: 1
-                    }), v(x, V, {
+                    }),v(x, EA, { 
+                        default: g((() => [h("h2", X, " 共" + b(C(KA).group_len) + "组 ", 1), h("div", $, [v(m, {
+                            loading: C(de),
+                            size: "small",
+                            bordered: "",
+                            "single-line": !1,
+                            data: C(KA).group_content,
+                            columns: C(q)
+                        }, null, 8, ["loading", "data", "columns"])])])),
+                        _: 1
+                    }), v(x, V, { 
                         default: g((() => [h("h2", te, " 共" + b(C(Y).group_len) + "组 ", 1), h("div", le, [v(m, {
                             loading: C(de),
                             size: "small",
