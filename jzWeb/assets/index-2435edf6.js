@@ -548,7 +548,7 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                 t.groupId = ve.id;
                 const n = {};
                 n.params = t;
-                const l = await e.get("https://bot.lestvpn.co/jzWeb/bill2/", n);
+                const l = await e.get("https://bot.lestvpn.co/jzWeb/bill/", n);
                 if (l.bills)
                     l.bills.reverse(),
                     Ce.value = l;
