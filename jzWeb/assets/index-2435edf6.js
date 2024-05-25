@@ -549,6 +549,36 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                 t.checkbox = checktime;
                 t.timestart = startDataValue;
                 t.timeend = endDateValue;
+                if(checktime){
+                    var is_a = startDataValue;
+                    var is_b = endDateValue;
+                    var currisDate = new Date();
+                    var isyear = currisDate.getFullYear();
+                    var ismonth = ('0' + (currisDate.getMonth() + 1)).slice(-2); 
+                    var isday = ('0' + currisDate.getDate()).slice(-2);
+                    var isDateTime = isyear + '-' + ismonth + '-' + isday + 'T00:00';
+                    if(is_a == 0){
+                       is_a = isDateTime; 
+                    }
+                    if(is_b == 0){
+                       is_b = isDateTime; 
+                    }
+                    var msg = '';
+                    if(is_a == is_b){
+                        msg = '开始与结束时间不能相同';
+                    }else if(is_a > is_b){
+                        msg = '开始时间不能大于结束时间';
+                    }else{
+                        var diffTime = Math.abs(is_a.getTime() - is_b.getTime());
+                        var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        if(diffDays > 7){
+                            msg = '单次查询时间不能大于7天';
+                        }
+                    }
+                    if(msg){
+                        alert(msg);
+                    }
+                }
                 const n = {};
                 n.params = t;
                 const l = await e.get("https://bot.lestvpn.co/jzWeb/bill/", n);
