@@ -569,6 +569,8 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                     }else if(is_a > is_b){
                         msg = '开始时间不能大于结束时间';
                     }else{
+                        is_a = new Date(is_a);
+                        is_b = new Date(is_b);
                         var diffTime = Math.abs(is_a.getTime() - is_b.getTime());
                         var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                         if(diffDays > 7){
