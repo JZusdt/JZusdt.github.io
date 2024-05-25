@@ -546,6 +546,9 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                 const t = {};
                 t.id = xe.value,
                 t.groupId = ve.id;
+                t.checkbox = checktime;
+                t.timestart = startDataValue;
+                t.timeend = endDateValue;
                 const n = {};
                 n.params = t;
                 const l = await e.get("https://bot.lestvpn.co/jzWeb/bill/", n);
