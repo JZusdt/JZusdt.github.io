@@ -730,5 +730,47 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
             }
         }
     }), [["__scopeId", "data-v-10d5ad81"]]);
+// 获取所有具有特定类名的元素
+const elementsok = document.querySelectorAll('.flatpickr-input.flatpickr-mobile');
+// 遍历每个元素，并禁用点击事件
+        elementsok.forEach(elements => {
+           elements.disabled = true;
+           elements.style.color = 'gray';
+        });
+
+var checkbox2 = document.getElementById("checkbox1");
+checkbox2.addEventListener("click", function() {
+    const element = document.querySelector('.n-base-selection.__internal-selection-1bcgj6e-l-1sinmgn');
+    if (checkbox2.checked) {
+        if (element) {
+           element.style.display = 'none';
+        }
+    } else {
+        if (element) {
+           element.style.display = 'flex';
+        }
+    }
+    
+    const element2 = document.querySelector('.n-base-selection.__internal-selection-1spjym3-l-1sinmgn');
+    if (checkbox2.checked) {
+        if (element2) {
+           element2.style.display = 'none';
+        }
+        // 遍历每个元素，并禁用点击事件
+        elementsok.forEach(elements => {
+           elements.disabled = false;
+           elements.style.color = 'black';
+        });
+    } else {
+        if (element2) {
+           element2.style.display = 'flex';
+        }
+        // 遍历每个元素，并禁用点击事件
+        elementsok.forEach(elements => {
+           elements.disabled = true;
+           elements.style.color = 'gray';
+        });
+    }
+});
 export { Ee as default };
 
