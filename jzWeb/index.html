@@ -16,14 +16,84 @@
     font-size: 10px;
     color: grey;
     margin-left: 20px;
-    margin-top: 18px;
+    margin-top: 12px;
+  }
+  .custom-text2 {
+    font-size: 12px;
+    color: grey;
+    margin-left: 20px;
+    margin-top: 20px;
   }
 </style>
-
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
-
 <body>
-  <div class="custom-text">💡点击当前账单可查历史记账，当字段隐藏可使用横屏或电脑端查看。 </div> 
+   <div class="custom-text">💡点击当前账单可查历史记账，当字段隐藏可使用横屏或电脑端查看。 </div> 
+  <div class="custom-text2">
+      <input type="checkbox" id="checkbox1" name="checkbox1" value="value1">
+       <label for="start-date">按时间</label>
+       <input type="text" id="start-date-input">
+       <input type="text" id="end-date-input">
+  </div>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+var startDataValue = 0;
+var endDateValue = 0;
+flatpickr("#start-date-input", {
+    minDate: "2000-01-01",
+    maxDate: null,
+    defaultDate: "today",
+    dateFormat: "Y-m-d H:i",
+    enableTime: true,
+    time_24hr: true,
+    required: true,
+    onChange: function(selectedDates, dateStr, instance) {
+        if (instance.input.id === "start-date-input") {
+             startDataValue = dateStr;
+            console.log('Selected Start Date:', startDataValue);
+        }
+    }
+});
+
+flatpickr("#end-date-input", {
+    minDate: "2000-01-01",
+    maxDate: null,
+    defaultDate: "today",
+    dateFormat: "Y-m-d H:i",
+    enableTime: true,
+    time_24hr: true,
+    required: true,
+    onChange: function(selectedDates, dateStr, instance) {
+         endDateValue = dateStr;
+         console.log('Selected End Date:', endDateValue);
+    }
+
+});
+</script>
+<script>
+var checktime = 0;
+// 获取复选框和按钮元素
+var checkbox1 = document.getElementById("checkbox1");
+var startDate = document.getElementById("start-date-input");
+var endDate = document.getElementById("end-date-input");
+//  const nSpaceElement = app.querySelector('.n-space');
+//  const nSpaceElement = app.querySelector('.n-space');
+
+startDate.setAttribute("disabled", "true"); // 添加 disabled 属性
+endDate.setAttribute("disabled", "true"); // 添加 disabled 属性
+// 监听复选框的点击事件
+checkbox1.addEventListener("click", function() {
+    if (checkbox1.checked) {
+         checktime = 1;
+        startDate.removeAttribute("disabled"); // 移除 disabled 属性
+        endDate.removeAttribute("disabled"); // 移除 disabled 属性
+    } else {
+         checktime = 0;
+        startDate.setAttribute("disabled", "true"); // 添加 disabled 属性
+        endDate.setAttribute("disabled", "true"); // 添加 disabled 属性
+    }
+});
+</script> 
   <div id="app"></div>
   <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
   <script nomodule crossorigin id="vite-legacy-polyfill" src="assets/polyfills-legacy-001d9dcc.js"></script>
