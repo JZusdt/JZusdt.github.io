@@ -467,7 +467,7 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                     t.id = ve.id;
                     const n = {};
                     n.params = t;
-                    const l = (await e.get("https://bot.lestvpn.co/jzWeb/options/", n)).map((e => {
+                    const l = (await e.get("https://bot.letsvpn.bet/jzWeb/options/", n)).map((e => {
                         const t = {};
                         return t.label = e.startTime + (e.settlementTime ? "到 " + e.settlementTime : ""), t.value = e._id, t
                     }));
@@ -486,7 +486,7 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                 t.groupId = ve.id;
                 const n = {};
                 n.params = t;
-                const l = await e.get("https://bot.lestvpn.co/jzWeb/bill/", n);
+                const l = await e.get("https://bot.letsvpn.bet/jzWeb/bill/", n);
                 if (l.bills)
                     l.bills.reverse(),
                     Ce.value = l;
