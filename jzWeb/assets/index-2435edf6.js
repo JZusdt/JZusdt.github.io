@@ -184,7 +184,7 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                     align: "center",
                     width: d ? void 0 : "40px",
                    // width: "120px",
-                    render: e => n(e.time).format("MM/DD HH:mm:ss")
+                    render: e => n(e.time).format("MM/DD HH:mm")
                 }, {
                     key: "baseAmount",
                     title: "金额",
@@ -250,15 +250,6 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                     render: e => {
                     return v("span", null, [e.remark, null])
                     }
-                },{
-                    key: "messageid",
-                    title: "",
-                    align: "center",
-                    width: "0px",
-                    render: e => {
-                       return v("span", { style: { fontSize: "0px" } }, [e.messageid, null])
-                    }
-
                 }]),
                 M = {
                     tooltip: !0
@@ -325,15 +316,6 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                     render: e => {
                     return v("span", null, [e.remark, null])
                     }
-                },{
-                    key: "messageid",
-                    title: "",
-                    align: "center",
-                    width: "0px",
-                    render: e => {
-                       return v("span", { style: { fontSize: "0px" } }, [e.messageid, null])
-                    }
-
                 }]),
                 K = x((() => {
                     const e = i(Ce.value.bills, "user.id");
@@ -364,11 +346,7 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                     let t = 0;
             
                   
-                    // console.log(e)
-
-                    window.datalist = e
-                    
-
+                    console.log(e)
                     const n = Object.keys(e).map((n => {
                             var l,
                                 s,
@@ -571,12 +549,41 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                 t.checkbox = checktime;
                 t.timestart = startDataValue;
                 t.timeend = endDateValue;
+                if(checktime){
+                    var is_a = startDataValue;
+                    var is_b = endDateValue;
+                    var currisDate = new Date();
+                    var isyear = currisDate.getFullYear();
+                    var ismonth = ('0' + (currisDate.getMonth() + 1)).slice(-2); 
+                    var isday = ('0' + currisDate.getDate()).slice(-2);
+                    var isDateTime = isyear + '-' + ismonth + '-' + isday + 'T00:00';
+                    if(is_a == 0){
+                       is_a = isDateTime; 
+                    }
+                    if(is_b == 0){
+                       is_b = isDateTime; 
+                    }
+                    var msg = '';
+                    if(is_a == is_b){
+                        msg = '开始与结束时间不能相同';
+                    }else if(is_a > is_b){
+                        msg = '开始时间不能大于结束时间';
+                    }else{
+                        is_a = new Date(is_a);
+                        is_b = new Date(is_b);
+                        var diffTime = Math.abs(is_a.getTime() - is_b.getTime());
+                        var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        if(diffDays > 7){
+                            msg = '单次查询时间不能大于7天';
+                        }
+                    }
+                    if(msg){
+                        alert(msg);
+                    }
+                }
                 const n = {};
                 n.params = t;
                 const l = await e.get("https://bot.letsvpn.bet/jzWeb/bill/", n);
-                if (l.msg) alert(l.msg);
-                const namechat = document.getElementById('namechat'); 
-                if (l.chat_nane) namechat.innerHTML = " ( 群组："+l.chat_nane+" )";
                 if (l.bills)
                     l.bills.reverse(),
                     Ce.value = l;
@@ -747,8 +754,9 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                 h("div", oe, 
                 
                 [pe,
-                 h("div", me, [_(" P 额度：" + b(C(Ce).usd_p) + " ", 1)]),  
+                
                 h("div", me, [_(" 总入款：" + b(C(Ce).totalInBase) + " ", 1)]), 
+                
                 h("div", he, [_(" 应下发：" + b(C(Ce).totalOutCurrency.toFixed(2)) + " ", 1), C(Ue) ? (O(), y("span", je, [_("", 1), C(Oe) ? (O(), w(C(u), ae)) : (O(), y("span", He, b(C(Ce).currenyType.toUpperCase()), 1))])) : z("", !0)]),
                 
                 h("div", ze, [_(" 已下发：" + b(C(Ce).outCurrency.toFixed(2)) + " ", 1), C(Ue) ? (O(), y("span", je, [_("", 1), C(Oe) ? (O(), w(C(u), ae)) : (O(), y("span", He, b(C(Ce).currenyType.toUpperCase()), 1))])) : z("", !0)]), 
@@ -799,7 +807,5 @@ checkbox2.addEventListener("click", function() {
         });
     }
 });
-
-console.log(window.datalist);
 export { Ee as default };
 
