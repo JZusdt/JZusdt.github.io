@@ -753,7 +753,7 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                 h("div", oe, 
                 
                 [pe,
-                b(C(Ce).usd_p)!=0 ? h("div", me, [_(" P 额度：" + b(C(Ce).usd_p) + " ", 1)]) : h("div", me, [_("", 1)]), 
+                b(C(Ce).usd_p)!=0 ? h("div", me, [_(" P 寄存：" + b(C(Ce).usd_p) + " ", 1)]) : h("div", me, [_("", 1)]), 
                 b(C(Ce).usd_h)!=0 ? h("div", me, [_(" P 回款：" + b(C(Ce).usd_h) + " ", 1)]) : h("div", me, [_("", 1)]),
                 h("div", me, [_(" 总入款：" + b(C(Ce).totalInBase) + " ", 1)]), 
                 h("div", he, [_(" 应下发：" + b(C(Ce).totalOutCurrency.toFixed(2)) + " ", 1), C(Ue) ? (O(), y("span", je, [_("", 1), C(Oe) ? (O(), w(C(u), ae)) : (O(), y("span", He, b(C(Ce).currenyType.toUpperCase()), 1))])) : z("", !0)]),
