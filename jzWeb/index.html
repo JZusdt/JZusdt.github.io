@@ -13,7 +13,7 @@
   <script
     type="module">!function () { if (window.__vite_is_modern_browser) return; console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored"); var e = document.getElementById("vite-legacy-polyfill"), n = document.createElement("script"); n.src = e.src, n.onload = function () { System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src')) }, document.body.appendChild(n) }();</script>
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0">
-  
+
   <style>
     .custom-text {
       font-size: 10px;
@@ -43,7 +43,8 @@
 </head>
 
 <body>
-  <div class="custom-text">💡 点击当前账单可查历史，手机版请横屏查看 <a href="javascript:clearAll();">清理所有点击痕迹</a>   <b id="namechat"></b> </div>
+  <div class="custom-text">💡 点击当前账单可查历史，手机版请横屏查看 <a href="javascript:clearAll();">清理所有点击痕迹</a> <b id="namechat"></b>
+  </div>
   <div class="custom-text2">
     <input type="checkbox" id="checkbox1" name="checkbox1" value="value1">
     <label for="start-date">按时间搜索</label>
@@ -51,6 +52,7 @@
     <input type="text" id="end-date-input">
   </div>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
   <script>
     var startDataValue = 0;
     var endDateValue = 0;
@@ -217,7 +219,7 @@
       let checkTableLoaded1 = setInterval(function () {
         let tables1 = document.getElementsByClassName("n-data-table-table")[0];
         let rows1 = tables1.getElementsByTagName('tr');
-      
+
         if (rows1.length > 1) {
           clearInterval(checkTableLoaded1);  // 检查到数据加载完毕，清除定时器
           rows1 = Array.from(rows1);
@@ -261,13 +263,244 @@
         }
       }, 100);
     }
-   // 监听按钮点击事件
+    // 监听按钮点击事件
     setTimeout(function () {
       let queryBtn = document.querySelector('button[data-v-10d5ad81]');
       queryBtn.addEventListener('click', function () {
         highlight()
       })
     }, 2000)
+
+
+    // 监听按钮点击事件
+    setTimeout(function () {
+      let queryBtn = document.querySelector('button[data-v-10d5ad81]');
+      // 创建一个新的按钮元素
+      let newBtn = document.createElement('button');
+      newBtn.textContent = '导出xlsx';
+      newBtn.id = 'exportBtn';
+
+      newBtn.classList.add('__button-1bcgj6e-llmd', 'n-button', 'n-button--default-type', 'n-button--large-type', 'n-button--block', 'exportBtn')
+      queryBtn.parentNode.insertBefore(newBtn, queryBtn.nextSibling);
+      if (!queryBtn.nextSibling) {
+        queryBtn.parentNode.appendChild(newBtn);
+      } else {
+        queryBtn.parentNode.insertBefore(newBtn, queryBtn.nextSibling);
+      }
+
+      queryBtn.insertAdjacentElement('afterend', newBtn);
+
+      // 监听导出按钮点击事件
+      document.getElementById('exportBtn').addEventListener('click', function () {
+        getExcel()
+      });
+    }, 2000)
+
+
+    function getExcel() {
+
+      let result = localStorage.getItem('result');
+
+      let resultJson = JSON.parse(result);
+      // console.log(111, resultJson);
+
+
+      let income = [];
+      let incomeNum = 0;
+      let outcome = [];
+      let outcomeNum = 0;
+
+
+      let total = []
+      // 619
+      let totalObj = {
+        'H 回款': resultJson.usd_h ? resultJson.usd_h : 0,
+        'P 寄存': resultJson.usd_p ? resultJson.usd_p : 0,
+        '总入款': resultJson.totalInBase ? resultJson.totalInBase : 0,
+        '应下发': resultJson.totalOutBase ? resultJson.totalOutBase : 0,
+        '已下发': resultJson.outBase ? resultJson.outBase : 0,
+        '待下发': resultJson.notOutBase ? resultJson.notOutBase : 0,
+      }
+      total.push(totalObj)
+      // console.log('totalObj', totalObj);
+
+
+      for (let i = 0; i < resultJson.bills.length; i++) {
+        if (resultJson.bills[i].type == 'in') {
+          let fenStr = '';
+          if (resultJson.bills[i].fei) {
+            fenStr = resultJson.bills[i].fei+'%'+' '+'⇌'+' '+resultJson.bills[i].rate;
+          }
+          let incomeObj = {
+            "时间": resultJson.bills[i].time,
+            "费率/汇率": fenStr,
+            "金额": resultJson.bills[i].baseAmount,
+            "结算": resultJson.bills[i].currenyAmount,
+            "标记人": resultJson.bills[i].replyUser ? resultJson.bills[i].replyUser.first_name : '',
+            "操作人": resultJson.bills[i].user ? resultJson.bills[i].user.first_name : '',
+            "备注": resultJson.bills[i].mark,
+          }
+          income.push(incomeObj)
+          income.sort(function (a, b) {
+            const dateA = new Date(a.时间);
+            const dateB = new Date(b.时间);
+            return dateA - dateB;
+          })
+          incomeNum++;
+        }
+
+        if (resultJson.bills[i].type == 'out') {
+          let outcomeObj = {
+            "时间": resultJson.bills[i].time,
+            "金额": resultJson.bills[i].baseAmount,
+            "标记人": resultJson.bills[i].replyUser ? resultJson.bills[i].replyUser.first_name : '',
+            "操作人": resultJson.bills[i].user ? resultJson.bills[i].user.first_name : '',
+            "备注": resultJson.bills[i].mark,
+          }
+          outcome.push(outcomeObj)
+          outcome.sort(function (a, b) {
+            const dateA = new Date(a.时间);
+            const dateB = new Date(b.时间);
+            return dateA - dateB;
+          })
+          outcomeNum++;
+        }
+      }
+
+      // 填充空数据
+      for (let i = 0; i < 100; i++) {
+        income.push({
+          "时间": '',
+          "金额": '',
+          "结算": '',
+          "标记人": '',
+          "操作人": '',
+          "备注": '',
+        })
+      }
+
+
+
+
+      var inws = XLSX.utils.json_to_sheet(income);
+
+
+      // 出库数据 12 6/16
+
+
+      inws['A' + (parseInt(incomeNum) + 5)] = { t: 's', v: '时间', r: '<fill>', h: 'filled' };
+      inws['B' + (parseInt(incomeNum) + 5)] = { t: 's', v: '金额', r: '<fill>', h: 'filled' };
+      inws['C' + (parseInt(incomeNum) + 5)] = { t: 's', v: '标记人', r: '<fill>', h: 'filled' };
+      inws['D' + (parseInt(incomeNum) + 5)] = { t: 's', v: '操作人', r: '<fill>', h: 'filled' };
+      inws['E' + (parseInt(incomeNum) + 5)] = { t: 's', v: '备注', r: '<fill>', h: 'filled' };
+
+      const letters = ['A', 'B', 'C', 'D', 'E'];
+
+      for (let i = 0; i < outcome.length; i++) {
+        inws['A' + (parseInt(incomeNum) + 5 + i + 1)] = { t: 's', v: outcome[i].时间, r: '<fill>', h: 'filled' };
+        inws['B' + (parseInt(incomeNum) + 5 + i + 1)] = { t: 's', v: outcome[i].金额, r: '<fill>', h: 'filled' };
+        inws['C' + (parseInt(incomeNum) + 5 + i + 1)] = { t: 's', v: outcome[i].标记人, r: '<fill>', h: 'filled' };
+        inws['D' + (parseInt(incomeNum) + 5 + i + 1)] = { t: 's', v: outcome[i].操作人, r: '<fill>', h: 'filled' };
+        inws['E' + (parseInt(incomeNum) + 5 + i + 1)] = { t: 's', v: outcome[i].备注, r: '<fill>', h: 'filled' };
+      }
+
+      var border = {
+        top: { style: "thin", color: { auto: 1 } },
+        right: { style: "thin", color: { auto: 1 } },
+        bottom: { style: "thin", color: { auto: 1 } },
+        left: { style: "thin", color: { auto: 1 } }
+      };
+     
+      // // 总计数据
+      inws['A' + (parseInt(incomeNum) + parseInt(outcomeNum) + 10)] = { t: 's', v: '总计', r: '<fill>', h: 'filled' };
+      inws['C' + (parseInt(incomeNum) + parseInt(outcomeNum) + 10)] = { t: 's', v: '入款（' + incomeNum + '笔）', r: '<fill>', h: 'filled' };
+      inws['D' + (parseInt(incomeNum) + parseInt(outcomeNum) + 10)] = { t: 's', v: '出款（' + outcomeNum + '笔）', r: '<fill>', h: 'filled' };
+      inws['A' + (parseInt(incomeNum) + parseInt(outcomeNum) + 11)] = { t: 's', v: 'H 回款', r: '<fill>', h: 'filled' };
+      inws['A' + (parseInt(incomeNum) + parseInt(outcomeNum) + 12)] = { t: 's', v: 'P 寄存', r: '<fill>', h: 'filled' };
+      inws['A' + (parseInt(incomeNum) + parseInt(outcomeNum) + 13)] = { t: 's', v: '总入款', r: '<fill>', h: 'filled' };
+      inws['A' + (parseInt(incomeNum) + parseInt(outcomeNum) + 14)] = { t: 's', v: '应下发', r: '<fill>', h: 'filled' };
+      inws['A' + (parseInt(incomeNum) + parseInt(outcomeNum) + 15)] = { t: 's', v: '已下发', r: '<fill>', h: 'filled' };
+      inws['A' + (parseInt(incomeNum) + parseInt(outcomeNum) + 16)] = { t: 's', v: '待下发', r: '<fill>', h: 'filled' };
+
+      inws['B' + (parseInt(incomeNum) + parseInt(outcomeNum) + 11)] = { t: 's', v: resultJson.usd_h ? resultJson.usd_h : 0, r: '<fill>', h: 'filled' };
+      inws['B' + (parseInt(incomeNum) + parseInt(outcomeNum) + 12)] = { t: 's', v: resultJson.usd_p ? resultJson.usd_p : 0, r: '<fill>', h: 'filled' };
+      inws['B' + (parseInt(incomeNum) + parseInt(outcomeNum) + 13)] = { t: 's', v: resultJson.totalInBase ? resultJson.totalInBase : 0, r: '<fill>', h: 'filled' };
+      inws['B' + (parseInt(incomeNum) + parseInt(outcomeNum) + 14)] = { t: 's', v: resultJson.totalOutBase ? resultJson.totalOutBase : 0, r: '<fill>', h: 'filled' };
+      inws['B' + (parseInt(incomeNum) + parseInt(outcomeNum) + 15)] = { t: 's', v: resultJson.outBase ? resultJson.outBase : 0, r: '<fill>', h: 'filled' };
+      inws['B' + (parseInt(incomeNum) + parseInt(outcomeNum) + 16)] = { t: 's', v: resultJson.notOutBase ? resultJson.notOutBase.toFixed(2) : 0, r: '<fill>', h: 'filled' };
+       
+
+
+
+      // 设置列宽（假设您有100列）
+      inws['!cols'] = [];
+      for (let i = 0; i < 100; i++) {
+        inws['!cols'].push({ wpx: 150 });
+
+      }
+
+      // 设置行高（假设您有100行）
+      inws['!rows'] = [];
+      for (let i = 0; i < 100; i++) {
+        inws['!rows'].push({ hpt: 20 }); // 行高是以磅为单位的
+        if (i == (parseInt(incomeNum) + parseInt(outcomeNum) + 10)) {
+          inws['!rows'][i] = { wpx: 150, font: { bold: true } };
+        }
+      }
+
+      var outws = XLSX.utils.json_to_sheet(outcome);
+      // 设置列宽
+      outws['!cols'] = [
+        { wpx: 100 },
+        { wpx: 100 },
+        { wpx: 100 },
+        { wpx: 100 },
+        { wpx: 100 },
+        { wpx: 100 },
+      ];
+
+      // 设置行高
+      outws['!rows'] = [
+        { hpt: 20 },
+        { hpt: 20 },
+        { hpt: 20 },
+        { hpt: 20 },
+        { hpt: 20 },
+        { hpt: 20 }
+      ];
+
+      var totalWs = XLSX.utils.json_to_sheet(total);
+      totalWs['A10'] = { v: 'Hello' };
+      totalWs['!cols'] = [
+        { wpx: 100 },
+        { wpx: 100 },
+        { wpx: 100 },
+        { wpx: 100 },
+        { wpx: 100 },
+        { wpx: 100 },
+      ];
+
+      totalWs['!rows'] = [
+        { hpt: 20 },
+        { hpt: 20 },
+        { hpt: 20 },
+        { hpt: 20 },
+        { hpt: 20 },
+        { hpt: 20 }
+      ];
+
+      var wb = XLSX.utils.book_new();
+
+
+
+
+      XLSX.utils.book_append_sheet(wb, inws, resultJson.startTime + '账单');
+      // XLSX.utils.book_append_sheet(wb, outws, resultJson.startTime + '出款（' + outcomeNum + '）');
+      // XLSX.utils.book_append_sheet(wb, totalWs, resultJson.startTime + '总计');
+      XLSX.writeFile(wb, resultJson.startTime + "账单.xlsx");
+
+    }
+
   </script>
 
   <div id="app"></div>
@@ -277,9 +510,23 @@
   <script nomodule crossorigin id="vite-legacy-entry"
     data-src="assets/index-legacy-525cdbbd.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
   <center>
-    <div class="custom-text" style="color:#CCCCCC;"><a href="https://t.me/i3333i">TG智蚁专业开发记账机器人 - 定制电报：@i3333i</a> 
+    <div class="custom-text" style="color:#CCCCCC;"><a href="https://t.me/i3333i">TG智蚁专业开发记账机器人 - 定制电报：@i3333i</a>
     </div>
   </center><br><br>
 </body>
+
+<style>
+        .exportBtn {
+            position: relative;
+            border: 1.5px solid black; 
+            border-radius: 25px; 
+            top: -34px;
+            left: 250px;
+            font-size: 11px;
+            width: 70px!important; 
+            height: 28px!important; 
+
+        }
+</style>
 
 </html>
