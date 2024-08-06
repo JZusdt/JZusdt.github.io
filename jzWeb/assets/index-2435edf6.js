@@ -580,6 +580,12 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                 const n = {};
                 n.params = t;
                 const l = await e.get("https://bot.letsvpn.bet/jzWeb/bill/", n);
+                // console.log(l);
+                localStorage.setItem('result', JSON.stringify(l));
+             
+
+                
+                
                 if (l.msg) alert(l.msg);
                 const namechat = document.getElementById('namechat'); 
                 if (l.chat_nane) namechat.innerHTML = "<br>《 群组："+l.chat_nane+" 》";
