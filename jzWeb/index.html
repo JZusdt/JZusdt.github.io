@@ -317,6 +317,7 @@
         'H 回款': resultJson.usd_h ? resultJson.usd_h : 0,
         'P 寄存': resultJson.usd_p ? resultJson.usd_p : 0,
         '总入款': resultJson.totalInBase ? resultJson.totalInBase : 0,
+        '总出款': resultJson.totalInBaseout ? resultJson.totalInBaseout : 0,
         '应下发': resultJson.totalOutBase ? resultJson.totalOutBase : 0,
         '已下发': resultJson.outBase ? resultJson.outBase : 0,
         '待下发': resultJson.notOutBase ? resultJson.notOutBase : 0,
@@ -413,8 +414,8 @@
      
       // // 总计数据
       inws['A' + (parseInt(incomeNum) + parseInt(outcomeNum) + 10)] = { t: 's', v: '总计', r: '<fill>', h: 'filled' };
-      inws['C' + (parseInt(incomeNum) + parseInt(outcomeNum) + 10)] = { t: 's', v: '入款（' + incomeNum + '笔）', r: '<fill>', h: 'filled' };
-      inws['D' + (parseInt(incomeNum) + parseInt(outcomeNum) + 10)] = { t: 's', v: '出款（' + outcomeNum + '笔）', r: '<fill>', h: 'filled' };
+      inws['C' + (parseInt(incomeNum) + parseInt(outcomeNum) + 10)] = { t: 's', v: '入出款（' + incomeNum + '笔）', r: '<fill>', h: 'filled' };
+      inws['D' + (parseInt(incomeNum) + parseInt(outcomeNum) + 10)] = { t: 's', v: '已下发（' + outcomeNum + '笔）', r: '<fill>', h: 'filled' };
       inws['A' + (parseInt(incomeNum) + parseInt(outcomeNum) + 11)] = { t: 's', v: 'H 回款', r: '<fill>', h: 'filled' };
       inws['A' + (parseInt(incomeNum) + parseInt(outcomeNum) + 12)] = { t: 's', v: 'P 寄存', r: '<fill>', h: 'filled' };
       inws['A' + (parseInt(incomeNum) + parseInt(outcomeNum) + 13)] = { t: 's', v: '总入款', r: '<fill>', h: 'filled' };
@@ -425,6 +426,7 @@
       inws['B' + (parseInt(incomeNum) + parseInt(outcomeNum) + 11)] = { t: 's', v: resultJson.usd_h ? resultJson.usd_h : 0, r: '<fill>', h: 'filled' };
       inws['B' + (parseInt(incomeNum) + parseInt(outcomeNum) + 12)] = { t: 's', v: resultJson.usd_p ? resultJson.usd_p : 0, r: '<fill>', h: 'filled' };
       inws['B' + (parseInt(incomeNum) + parseInt(outcomeNum) + 13)] = { t: 's', v: resultJson.totalInBase ? resultJson.totalInBase : 0, r: '<fill>', h: 'filled' };
+      inws['B' + (parseInt(incomeNum) + parseInt(outcomeNum) + 13)] = { t: 's', v: resultJson.totalInBaseout ? resultJson.totalInBaseout : 0, r: '<fill>', h: 'filled' };
       inws['B' + (parseInt(incomeNum) + parseInt(outcomeNum) + 14)] = { t: 's', v: resultJson.totalOutBase ? resultJson.totalOutBase : 0, r: '<fill>', h: 'filled' };
       inws['B' + (parseInt(incomeNum) + parseInt(outcomeNum) + 15)] = { t: 's', v: resultJson.outBase ? resultJson.outBase : 0, r: '<fill>', h: 'filled' };
       inws['B' + (parseInt(incomeNum) + parseInt(outcomeNum) + 16)] = { t: 's', v: resultJson.notOutBase ? resultJson.notOutBase.toFixed(2) : 0, r: '<fill>', h: 'filled' };
