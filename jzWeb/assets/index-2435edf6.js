@@ -703,7 +703,7 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                     "single-line": !1,
                     data: C(we),
                     columns: C(D)
-                }, null, 8, ["loading", "data", "columns"])]), h("h2", G, " 出款(" + b(C(Be).length) + "笔) ", 1), h("div", S, [v(m, {
+                }, null, 8, ["loading", "data", "columns"])]), h("h2", G, " 下发(" + b(C(Be).length) + "笔) ", 1), h("div", S, [v(m, {
                     loading: C(de),
                     size: "small",
                     bordered: "",
