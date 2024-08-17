@@ -759,7 +759,7 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                 h("div", oe, 
                 
                 [pe,
-                h("div", me, [_(" 总明细：↓ " + b(C(Ce).totalInBasein) + "  ↑ " + b(C(Ce).totalInBaseout) + " ", 1)]),
+                b(C(Ce).usd_p)!=0 ? h("div", me, [_(" 总明细：↓ " + b(C(Ce).totalInBasein) + "  ↑ " + b(C(Ce).totalInBaseout) + " ", 1)]) : h("div", me, [_("", 1)]),
                 b(C(Ce).usd_p)!=0 ? h("div", me, [_(" P 寄存：" + b(C(Ce).usd_p) + " ", 1)]) : h("div", me, [_("", 1)]), 
                 b(C(Ce).usd_h)!=0 ? h("div", me, [_(" H 回款：" + b(C(Ce).usd_h) + " ", 1)]) : h("div", me, [_("", 1)]),
                 h("div", me, [_(" 总入款：" + b(C(Ce).totalInBase) + " ", 1)]), 
