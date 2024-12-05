@@ -1,3 +1,4 @@
+
 import { r as e, i as t, d as n, _ as l, a as s, b as r, c as a, U as u, g as i, e as o, f as c, h as p } from "./plugin-vue_export-helper-78288618.js";
 import { d, r as m, c as x, a as y, b as v, w as g, F as f, e as h, u as C, i as k, t as b, f as _, g as w, h as z, n as B, _ as A, o as O, p as T, j as U } from "./index-5026f0d8.js";
 const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
@@ -553,16 +554,24 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                 Me = x((() => De.value && Ce.value.use_usd));
             (async () => {
                 if (ve.id) {
-                    const t = {};
-                    t.id = ve.id;
-                    const n = {};
-                    n.params = t;
-                    const l = (await e.get("https://bot.letsvpn.bet/jzWeb/options/", n)).map((e => {
-                        const t = {};
-                        return t.label = e.startTime + (e.settlementTime ? "到 " + e.settlementTime : ""), t.value = e._id, t
-                    }));
-                    be.value = l,
-                    xe.value = l[0].value
+                   const t = {};
+                   t.id = ve.id;
+                   const n = {};
+                   n.params = t;
+                   // 首先请求第一个 URL
+                   let l = await e.get("https://bot.letsvpn.bet/jzWeb/options/", n);
+                   // 检查返回的数据是否为空
+                   if (!Array.isArray(l)) {
+                       // 如果为空，则请求第二个 URL
+                       l = await e.get("https://api.letsvpn.bet/jzWeb/options/", n);
+                   }
+                   // 处理返回的数据
+                   l = l.map((e) => {
+                      const t = {};
+                      return t.label = e.startTime + (e.settlementTime ? "到 " + e.settlementTime : ""), t.value = e._id, t;
+                   });
+                   be.value = l;
+                   xe.value = l[0] ? l[0].value : null; // 确保 l[0] 存在
                 }
             })().then((() => {
                 Ee()
@@ -579,7 +588,10 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                 t.timeend = endDateValue;
                 const n = {};
                 n.params = t;
-                const l = await e.get("https://bot.letsvpn.bet/jzWeb/bill/", n);
+                let l = await e.get("https://bot.letsvpn.bet/jzWeb/bill/", n);
+                if (!Array.isArray(l)) {
+                    l = await e.get("https://api.letsvpn.bet/jzWeb/bill/", n);
+                }
                 // console.log(l);
                 localStorage.setItem('result', JSON.stringify(l));
              
