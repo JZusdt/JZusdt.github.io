@@ -561,7 +561,7 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                    // 首先请求第一个 URL
                    let l = await e.get("https://bot.letsvpn.bet/jzWeb/options/", n);
                    // 检查返回的数据是否为空
-                   if (!Array.isArray(l)) {
+                   if (!l || l.length === 0) {
                        // 如果为空，则请求第二个 URL
                        l = await e.get("https://api.letsvpn.bet/jzWeb/options/", n);
                    }
@@ -589,7 +589,7 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                 const n = {};
                 n.params = t;
                 let l = await e.get("https://bot.letsvpn.bet/jzWeb/bill/", n);
-                if (!Array.isArray(l)) {
+                if (!l || l.length === 0) {
                     l = await e.get("https://api.letsvpn.bet/jzWeb/bill/", n);
                 }
                 // console.log(l);
