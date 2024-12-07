@@ -75,7 +75,7 @@
     flatpickr("#end-date-input", {
       minDate: "2000-01-01",
       maxDate: null,
-      defaultDate: "today",
+      defaultDate: new Date().setHours(23, 59, 0, 0), // 设置默认时间为23:59
       dateFormat: "Y-m-d H:i",
       enableTime: true,
       time_24hr: true,
