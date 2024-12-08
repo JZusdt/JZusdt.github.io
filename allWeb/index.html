@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>账单</title>
+
+  <script type="module" crossorigin src="assets/polyfills-1837b84b.js"></script>
+  <script type="module" crossorigin src="assets/index-5026f0d8.js"></script>
+  <link rel="stylesheet" href="assets/index-ae2909cd.css">
+  <script
+    type="module">import.meta.url; import("_").catch(() => 1); async function* g() { }; if (location.protocol != "file:") { window.__vite_is_modern_browser = true }</script>
+  <script
+    type="module">!function () { if (window.__vite_is_modern_browser) return; console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored"); var e = document.getElementById("vite-legacy-polyfill"), n = document.createElement("script"); n.src = e.src, n.onload = function () { System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src')) }, document.body.appendChild(n) }();</script>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0">
+
+  <style>
+    .custom-text {
+      font-size: 10px;
+      color: grey;
+      margin-left: 20px;
+      margin-top: 12px;
+    }
+
+    .custom-text2 {
+      font-size: 12px;
+      color: grey;
+      margin-left: 20px;
+      margin-top: 20px;
+    }
+
+    td {
+      background-color: transparent !important;
+    }
+
+    .highlight {
+      background-color: lightblue !important;
+      z-index: 999;
+      /* 设置高亮样式 */
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+</head>
+
+<body>
+  <div class="custom-text">💡 点击当前账单可查历史，手机版请横屏查看 <a href="javascript:clearAll();">清理所有点击痕迹</a> <b id="namechat"></b>
+  </div>
+  <div class="custom-text2">
+    <div class="radio-group">
+        <label>
+            <input type="radio" name="gender" value="1" checked onclick="fetchData(1)"> 今日账单群&nbsp;&nbsp;&nbsp;
+        </label>
+        <label>
+            <input type="radio" name="gender" value="2" onclick="fetchData(2)"> 昨日账单群&nbsp;&nbsp;&nbsp;
+        </label>
+        <label>
+            <input type="radio" name="gender" value="3" onclick="fetchData(3)"> 当前账单群&nbsp;&nbsp;&nbsp;
+        </label>
+        <label>
+            <input type="radio" name="gender" value="4" onclick="fetchData(4)"> 全部群组
+        </label>
+    </div>
+    <br>
+
+     群组 <select id="fruits" name="fruits" style="width: 270px;">
+          </select>
+  </div>
+  
+  <script>
+   function okgetCookie(name) {
+      const nameEQ = name + "=";
+      const ca = document.cookie.split(';');
+      for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+      }
+      return null; // 如果没有找到 cookie，返回 null
+   }
+   function oksetCookie(name, value, days) {
+    let expires = "";
+    if (days) {
+        const date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "") + expires + "; path=/";
+   }
+   function fetchData(data) {
+        oksetCookie("okradio", data, 30);
+            // 刷新页面
+            location.reload();
+   }
+    function okfetchData(data) {
+        const radios = document.getElementsByName('gender');
+        let found = false;
+        for (let i = 0; i < radios.length; i++) {
+            if (radios[i].value == data) {
+                radios[i].checked = true; // 设置为选中状态
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            radios[0].checked = true; // 选中第一个 radio
+        }
+        let okgeturi = false; 
+        var mygeturi = window.location.search; 
+        const apiUrl = 'https://bot.letsvpn.bet/jzWeb/group/'+mygeturi+'&grouptype='+data;
+        fetch(apiUrl)
+            .then(response => {
+                if (!response.ok) {
+                    okgeturi = true;
+                }
+                return response.json();
+            })
+            .then(data => {
+                updateSelect(data);
+            })
+            .catch(error => {
+                okgeturi = true;
+            });
+        if(okgeturi){
+            const apiUrl2 = 'https://api.letsvpn.bet/jzWeb/group/'+mygeturi+'&grouptype='+data;
+            fetch(apiUrl2)
+            .then(response => {
+                if (!response.ok) {
+                    okgeturi = true;
+                }
+                return response.json();
+            })
+            .then(data => {
+                updateSelect(data);
+            })
+            .catch(error => {
+                okgeturi = true;
+            });
+        }
+             
+    }
+
+    function updateSelect(data) {
+        const select = document.getElementById('fruits');
+        
+        // 清空现有选项
+        select.innerHTML = '<option value="0">请选择群组</option>';
+
+        // 遍历数据并添加选项
+        for (const [key, value] of Object.entries(data)) {
+            const option = document.createElement('option');
+            option.value = key; // 使用键作为值
+            option.textContent = value; // 使用值作为显示文本
+            select.appendChild(option);
+        }
+    }
+   var botadmin = okgetCookie("botadmin");
+   if(!botadmin){
+      // exit;
+   }
+   var getokradio = okgetCookie("okradio");
+   if(!getokradio){
+       getokradio = 1;
+   }
+    window.onload = okfetchData(getokradio);
+       
+
+</script>
+
+
+  <div class="custom-text2">
+    <input type="radio" id="checkbox1" name="checkbox1" value="value1" checked>
+    <label for="start-date">按时间查</label>
+    <input type="text" id="start-date-input">
+    <input type="text" id="end-date-input">
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+<script>
+    var startDataValue = 0;
+    var endDateValue = 0;
+    flatpickr("#start-date-input", {
+        minDate: "2000-01-01",
+        maxDate: null,
+        defaultDate: new Date(new Date().setHours(00, 00, 0, 0)), // 设置默认时间为23:59
+        dateFormat: "Y-m-d H:i",
+        enableTime: true,
+        time_24hr: true,
+        required: true,
+        onChange: function (selectedDates, dateStr, instance) {
+            startDataValue = dateStr;
+        },
+        onReady: function(selectedDates, dateStr, instance) {
+            instance.setDate(new Date(new Date().setHours(00, 00, 0, 0)), true);
+        }
+    });
+
+    flatpickr("#end-date-input", {
+        minDate: "2000-01-01",
+        maxDate: null,
+        defaultDate: new Date(new Date().setHours(23, 59, 0, 0)), // 设置默认时间为23:59
+        dateFormat: "Y-m-d H:i",
+        enableTime: true,
+        time_24hr: true,
+        required: true,
+        onChange: function (selectedDates, dateStr, instance) {
+            endDateValue = dateStr; // 获取格式化后的字符串
+        },
+        onReady: function(selectedDates, dateStr, instance) {
+            instance.setDate(new Date(new Date().setHours(23, 59, 0, 0)), true);
+        }
+    });
+</script>
+  <script>
+    var checktime = 0;
+    // 获取复选框和按钮元素
+    var checkbox1 = document.getElementById("checkbox1");
+    var startDate = document.getElementById("start-date-input");
+    var endDate = document.getElementById("end-date-input");
+    //  const nSpaceElement = app.querySelector('.n-space');
+    //  const nSpaceElement = app.querySelector('.n-space');
+    if(getokradio == 3){
+       startDate.setAttribute("disabled", "true"); // 添加 disabled 属性
+       endDate.setAttribute("disabled", "true"); // 添加 disabled 属性
+       checkbox1.setAttribute("disabled", "true"); // 添加 disabled 属性
+    }
+
+
+
+    // 清空所有高亮
+    function clearAll() {
+      localStorage.removeItem('table1HighLightRow');
+      localStorage.removeItem('table2HighLightRow');
+      location.reload()
+    }
+
+
+    // 获取之前保存的选中行的状态
+    let table1HighLightRow = JSON.parse(localStorage.getItem('table1HighLightRow')) || [];
+    let table2HighLightRow = JSON.parse(localStorage.getItem('table2HighLightRow')) || [];
+
+    // 定时检测异步数据加载完毕状态 table1
+
+    function table1() {
+      let checkTableLoaded1 = setInterval(function () {
+        let tables1 = document.getElementsByClassName("n-data-table-table")[0];
+        let rows1 = tables1.getElementsByTagName('tr');
+        if (rows1.length > 1) {
+          clearInterval(checkTableLoaded1);  // 检查到数据加载完毕，清除定时器
+
+          // 执行高亮
+          rows1 = Array.from(rows1);
+          rows1.forEach((row, index) => {
+            const lastTdValue = row.lastElementChild.textContent;
+            if (table1HighLightRow.includes(lastTdValue)) {
+              row.classList.add('highlight');
+            }
+          });
+
+
+          for (let i = 0; i < rows1.length; i++) {
+            let p;
+            (function (p) {
+              rows1[p].onclick = function () {
+                if (this.classList.contains('highlight')) {
+                  this.classList.remove('highlight');
+                  const lastTdValue = rows1[p].lastElementChild.textContent;
+                  const selectedIndex = table1HighLightRow.indexOf(lastTdValue);
+                  table1HighLightRow.splice(selectedIndex, 1);
+
+                } else {
+                  this.classList.add('highlight');
+                  const lastTdValue = rows1[p].lastElementChild.textContent;
+                  table1HighLightRow.push(lastTdValue);
+                }
+                localStorage.setItem('table1HighLightRow', JSON.stringify(table1HighLightRow));
+              }
+            })(i);
+          }
+        }
+      }, 1500);
+    }
+
+    table1();
+
+
+    // 定时检测异步数据加载完毕状态 table2
+    function table2() {
+      let checkTableLoaded2 = setInterval(function () {
+        let tables2 = document.getElementsByClassName("n-data-table-table")[1];
+        let rows2 = tables2.getElementsByTagName('tr');
+        if (rows2.length > 1) {
+          clearInterval(checkTableLoaded2);  // 检查到数据加载完毕，清除定时器
+
+          // 执行高亮
+          rows2 = Array.from(rows2);
+          rows2.forEach((row, index) => {
+            const lastTdValue = row.lastElementChild.textContent;
+            if (table2HighLightRow.includes(lastTdValue)) {
+              row.classList.add('highlight');
+            }
+          });
+
+          for (let i = 0; i < rows2.length; i++) {
+            let p;
+            (function (p) {
+              rows2[p].onclick = function () {
+                if (this.classList.contains('highlight')) {
+                  this.classList.remove('highlight');
+                  const lastTdValue = rows2[p].lastElementChild.textContent;
+                  const selectedIndex = table2HighLightRow.indexOf(lastTdValue);
+                  table2HighLightRow.splice(selectedIndex, 1);
+                } else {
+                  this.classList.add('highlight');
+                  const lastTdValue = rows2[p].lastElementChild.textContent;
+                  table2HighLightRow.push(lastTdValue);
+                }
+                console.log('table2HighLightRow', table2HighLightRow);
+
+                localStorage.setItem('table2HighLightRow', JSON.stringify(table2HighLightRow));
+              }
+            })(i);
+          }
+
+        }
+      }, 1500);
+    }
+    table2()
+
+    // 高亮代码
+
+    function highlight() {
+
+      let checkTableLoaded1 = setInterval(function () {
+        let tables1 = document.getElementsByClassName("n-data-table-table")[0];
+        let rows1 = tables1.getElementsByTagName('tr');
+
+        if (rows1.length > 1) {
+          clearInterval(checkTableLoaded1);  // 检查到数据加载完毕，清除定时器
+          rows1 = Array.from(rows1);
+          rows1.forEach((row, index) => {
+            row.classList.remove('highlight');
+          });
+          setTimeout(function () {
+            rows1.forEach((row, index) => {
+              row.classList.remove('highlight');
+              const lastTdValue = row.lastElementChild.textContent;
+              if (table1HighLightRow.includes(lastTdValue)) {
+                row.classList.add('highlight');
+              }
+              table1()
+            });
+          }, 1500)
+        }
+      }, 500);
+
+
+
+      let checkTableLoaded2 = setInterval(function () {
+        let tables2 = document.getElementsByClassName("n-data-table-table")[1];
+        let rows2 = tables2.getElementsByTagName('tr');
+        if (rows2.length > 1) {
+          clearInterval(checkTableLoaded2);  // 检查到数据加载完毕，清除定时器
+          rows2 = Array.from(rows2);
+          rows2.forEach((row, index) => {
+            row.classList.remove('highlight');
+          });
+          setTimeout(function () {
+            rows2.forEach((row, index) => {
+              row.classList.remove('highlight');
+              const lastTdValue = row.lastElementChild.textContent;
+              if (table1HighLightRow.includes(lastTdValue)) {
+                row.classList.add('highlight');
+              }
+              table2()
+            });
+          }, 1500)
+        }
+      }, 500);
+    }
+    // 监听按钮点击事件
+    setTimeout(function () {
+      let queryBtn = document.querySelector('button[data-v-10d5ad81]');
+      queryBtn.addEventListener('click', function () {
+        highlight()
+      })
+    }, 2000)
+
+
+    // 监听按钮点击事件
+    setTimeout(function () {
+      let queryBtn = document.querySelector('button[data-v-10d5ad81]');
+      // 创建一个新的按钮元素
+      let newBtn = document.createElement('button');
+      newBtn.textContent = '导出xlsx';
+      newBtn.id = 'exportBtn';
+
+      newBtn.classList.add('__button-1bcgj6e-llmd', 'n-button', 'n-button--default-type', 'n-button--large-type', 'n-button--block', 'exportBtn')
+      queryBtn.parentNode.insertBefore(newBtn, queryBtn.nextSibling);
+      if (!queryBtn.nextSibling) {
+        queryBtn.parentNode.appendChild(newBtn);
+      } else {
+        queryBtn.parentNode.insertBefore(newBtn, queryBtn.nextSibling);
+      }
+
+      queryBtn.insertAdjacentElement('afterend', newBtn);
+
+      // 监听导出按钮点击事件
+      document.getElementById('exportBtn').addEventListener('click', function () {
+        getExcel()
+      });
+    }, 2000)
+
+
+    function getExcel() {
+
+      let result = localStorage.getItem('result');
+
+      let resultJson = JSON.parse(result);
+      // console.log(111, resultJson);
+
+
+      let income = [];
+      let incomeNum = 0;
+      let outcome = [];
+      let outcomeNum = 0;
+
+
+      let total = []
+      // 619
+      let totalObj = {
+        'H 回款': resultJson.usd_h ? resultJson.usd_h : 0,
+        'P 寄存': resultJson.usd_p ? resultJson.usd_p : 0,
+        '总入款': resultJson.totalInBase ? resultJson.totalInBase : 0,
+       // '总出款': resultJson.totalInBaseout ? resultJson.totalInBaseout : 0,
+        '应下发': resultJson.totalOutBase ? resultJson.totalOutBase : 0,
+        '已下发': resultJson.outBase ? resultJson.outBase : 0,
+        '待下发': resultJson.notOutBase ? resultJson.notOutBase : 0,
+      }
+      total.push(totalObj)
+      // console.log('totalObj', totalObj);
+
+
+      for (let i = 0; i < resultJson.bills.length; i++) {
+        if (resultJson.bills[i].type == 'in') {
+          let fenStr = '';
+          if (resultJson.bills[i].fei) {
+            fenStr = resultJson.bills[i].fei+'%'+' '+'⇌'+' '+resultJson.bills[i].rate;
+          }
+          let incomeObj = {
+            "时间": resultJson.bills[i].time,
+            "费率/汇率": fenStr,
+            "金额": resultJson.bills[i].baseAmount,
+            "结算": resultJson.bills[i].currenyAmount,
+            "标记人": resultJson.bills[i].replyUser ? resultJson.bills[i].replyUser.first_name : '',
+            "操作人": resultJson.bills[i].user ? resultJson.bills[i].user.first_name : '',
+            "备注": resultJson.bills[i].mark,
+          }
+          income.push(incomeObj)
+          income.sort(function (a, b) {
+            const dateA = new Date(a.时间);
+            const dateB = new Date(b.时间);
+            return dateA - dateB;
+          })
+          incomeNum++;
+        }
+
+        if (resultJson.bills[i].type == 'out') {
+          let outcomeObj = {
+            "时间": resultJson.bills[i].time,
+            "金额": resultJson.bills[i].baseAmount,
+            "标记人": resultJson.bills[i].replyUser ? resultJson.bills[i].replyUser.first_name : '',
+            "操作人": resultJson.bills[i].user ? resultJson.bills[i].user.first_name : '',
+            "备注": resultJson.bills[i].mark,
+          }
+          outcome.push(outcomeObj)
+          outcome.sort(function (a, b) {
+            const dateA = new Date(a.时间);
+            const dateB = new Date(b.时间);
+            return dateA - dateB;
+          })
+          outcomeNum++;
+        }
+      }
+
+      // 填充空数据
+      for (let i = 0; i < 100; i++) {
+        income.push({
+          "时间": '',
+          "金额": '',
+          "结算": '',
+          "标记人": '',
+          "操作人": '',
+          "备注": '',
+        })
+      }
+
+
+
+
+      var inws = XLSX.utils.json_to_sheet(income);
+
+
+      // 出库数据 12 6/16
+
+
+      inws['A' + (parseInt(incomeNum) + 5)] = { t: 's', v: '时间', r: '<fill>', h: 'filled' };
+      inws['B' + (parseInt(incomeNum) + 5)] = { t: 's', v: '金额', r: '<fill>', h: 'filled' };
+      inws['C' + (parseInt(incomeNum) + 5)] = { t: 's', v: '标记人', r: '<fill>', h: 'filled' };
+      inws['D' + (parseInt(incomeNum) + 5)] = { t: 's', v: '操作人', r: '<fill>', h: 'filled' };
+      inws['E' + (parseInt(incomeNum) + 5)] = { t: 's', v: '备注', r: '<fill>', h: 'filled' };
+
+      const letters = ['A', 'B', 'C', 'D', 'E'];
+
+      for (let i = 0; i < outcome.length; i++) {
+        inws['A' + (parseInt(incomeNum) + 5 + i + 1)] = { t: 's', v: outcome[i].时间, r: '<fill>', h: 'filled' };
+        inws['B' + (parseInt(incomeNum) + 5 + i + 1)] = { t: 's', v: outcome[i].金额, r: '<fill>', h: 'filled' };
+        inws['C' + (parseInt(incomeNum) + 5 + i + 1)] = { t: 's', v: outcome[i].标记人, r: '<fill>', h: 'filled' };
+        inws['D' + (parseInt(incomeNum) + 5 + i + 1)] = { t: 's', v: outcome[i].操作人, r: '<fill>', h: 'filled' };
+        inws['E' + (parseInt(incomeNum) + 5 + i + 1)] = { t: 's', v: outcome[i].备注, r: '<fill>', h: 'filled' };
+      }
+
+      var border = {
+        top: { style: "thin", color: { auto: 1 } },
+        right: { style: "thin", color: { auto: 1 } },
+        bottom: { style: "thin", color: { auto: 1 } },
+        left: { style: "thin", color: { auto: 1 } }
+      };
+     
+      // // 总计数据
+      inws['A' + (parseInt(incomeNum) + parseInt(outcomeNum) + 10)] = { t: 's', v: '总计', r: '<fill>', h: 'filled' };
+      inws['C' + (parseInt(incomeNum) + parseInt(outcomeNum) + 10)] = { t: 's', v: '已入账（' + incomeNum + '笔）', r: '<fill>', h: 'filled' };
+      inws['D' + (parseInt(incomeNum) + parseInt(outcomeNum) + 10)] = { t: 's', v: '已下发（' + outcomeNum + '笔）', r: '<fill>', h: 'filled' };
+      inws['A' + (parseInt(incomeNum) + parseInt(outcomeNum) + 11)] = { t: 's', v: 'H 回款', r: '<fill>', h: 'filled' };
+      inws['A' + (parseInt(incomeNum) + parseInt(outcomeNum) + 12)] = { t: 's', v: 'P 寄存', r: '<fill>', h: 'filled' };
+      inws['A' + (parseInt(incomeNum) + parseInt(outcomeNum) + 13)] = { t: 's', v: '总入款', r: '<fill>', h: 'filled' };
+    //  inws['A' + (parseInt(incomeNum) + parseInt(outcomeNum) + 14)] = { t: 's', v: '总明细', r: '<fill>', h: 'filled' };
+      inws['A' + (parseInt(incomeNum) + parseInt(outcomeNum) + 14)] = { t: 's', v: '应下发', r: '<fill>', h: 'filled' };
+      inws['A' + (parseInt(incomeNum) + parseInt(outcomeNum) + 15)] = { t: 's', v: '已下发', r: '<fill>', h: 'filled' };
+      inws['A' + (parseInt(incomeNum) + parseInt(outcomeNum) + 16)] = { t: 's', v: '待下发', r: '<fill>', h: 'filled' };
+
+      inws['B' + (parseInt(incomeNum) + parseInt(outcomeNum) + 11)] = { t: 's', v: resultJson.usd_h ? resultJson.usd_h : 0, r: '<fill>', h: 'filled' };
+      inws['B' + (parseInt(incomeNum) + parseInt(outcomeNum) + 12)] = { t: 's', v: resultJson.usd_p ? resultJson.usd_p : 0, r: '<fill>', h: 'filled' };
+      inws['B' + (parseInt(incomeNum) + parseInt(outcomeNum) + 13)] = { t: 's', v: resultJson.totalInBase ? resultJson.totalInBase : 0, r: '<fill>', h: 'filled' };
+     // inws['B' + (parseInt(incomeNum) + parseInt(outcomeNum) + 14)] = { t: 's', v: resultJson.totalInBaseout ? resultJson.totalInBaseout : 0, r: '<fill>', h: 'filled' };
+      inws['B' + (parseInt(incomeNum) + parseInt(outcomeNum) + 14)] = { t: 's', v: resultJson.totalOutBase ? resultJson.totalOutBase : 0, r: '<fill>', h: 'filled' };
+      inws['B' + (parseInt(incomeNum) + parseInt(outcomeNum) + 15)] = { t: 's', v: resultJson.outBase ? resultJson.outBase : 0, r: '<fill>', h: 'filled' };
+      inws['B' + (parseInt(incomeNum) + parseInt(outcomeNum) + 16)] = { t: 's', v: resultJson.notOutBase ? resultJson.notOutBase.toFixed(2) : 0, r: '<fill>', h: 'filled' };
+       
+
+
+
+      // 设置列宽（假设您有100列）
+      inws['!cols'] = [];
+      for (let i = 0; i < 100; i++) {
+        inws['!cols'].push({ wpx: 150 });
+
+      }
+
+      // 设置行高（假设您有100行）
+      inws['!rows'] = [];
+      for (let i = 0; i < 100; i++) {
+        inws['!rows'].push({ hpt: 20 }); // 行高是以磅为单位的
+        if (i == (parseInt(incomeNum) + parseInt(outcomeNum) + 10)) {
+          inws['!rows'][i] = { wpx: 150, font: { bold: true } };
+        }
+      }
+
+      var outws = XLSX.utils.json_to_sheet(outcome);
+      // 设置列宽
+      outws['!cols'] = [
+        { wpx: 100 },
+        { wpx: 100 },
+        { wpx: 100 },
+        { wpx: 100 },
+        { wpx: 100 },
+        { wpx: 100 },
+      ];
+
+      // 设置行高
+      outws['!rows'] = [
+        { hpt: 20 },
+        { hpt: 20 },
+        { hpt: 20 },
+        { hpt: 20 },
+        { hpt: 20 },
+        { hpt: 20 }
+      ];
+
+      var totalWs = XLSX.utils.json_to_sheet(total);
+      totalWs['A10'] = { v: 'Hello' };
+      totalWs['!cols'] = [
+        { wpx: 100 },
+        { wpx: 100 },
+        { wpx: 100 },
+        { wpx: 100 },
+        { wpx: 100 },
+        { wpx: 100 },
+      ];
+
+      totalWs['!rows'] = [
+        { hpt: 20 },
+        { hpt: 20 },
+        { hpt: 20 },
+        { hpt: 20 },
+        { hpt: 20 },
+        { hpt: 20 }
+      ];
+
+      var wb = XLSX.utils.book_new();
+
+
+
+
+      XLSX.utils.book_append_sheet(wb, inws, resultJson.startTime + '账单');
+      // XLSX.utils.book_append_sheet(wb, outws, resultJson.startTime + '出款（' + outcomeNum + '）');
+      // XLSX.utils.book_append_sheet(wb, totalWs, resultJson.startTime + '总计');
+      XLSX.writeFile(wb, resultJson.startTime + "账单.xlsx");
+
+    }
+
+  </script>
+
+  <div id="app"></div>
+  <script
+    nomodule>!function () { var e = document, t = e.createElement("script"); if (!("noModule" in t) && "onbeforeload" in t) { var n = !1; e.addEventListener("beforeload", (function (e) { if (e.target === t) n = !0; else if (!e.target.hasAttribute("nomodule") || !n) return; e.preventDefault() }), !0), t.type = "module", t.src = ".", e.head.appendChild(t), t.remove() } }();</script>
+  <script nomodule crossorigin id="vite-legacy-polyfill" src="assets/polyfills-legacy-001d9dcc.js"></script>
+  <script nomodule crossorigin id="vite-legacy-entry"
+    data-src="assets/index-legacy-525cdbbd.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  <center>
+<!--     <div class="custom-text" style="color:#CCCCCC;"><a href="https://t.me/i3333i">TG智蚁专业开发记账机器人 - 定制电报：@i3333i</a>
+    </div> -->
+  </center><br><br>
+  <style>
+        .exportBtn {
+            position: relative;
+            border: 1.5px solid black; 
+            border-radius: 25px; 
+            top: -34px;
+            left: 250px;
+            font-size: 11px;
+            width: 70px!important; 
+            height: 28px!important; 
+
+        }
+</style>
+</body>
+</html>
