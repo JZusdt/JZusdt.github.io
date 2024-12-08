@@ -122,7 +122,7 @@ submitBtn.addEventListener('click', () => {
     if (emailValid && checkboxEl.checked && nameValid && sprayRepeatCounter > 1) {
     	const checkbox = document.getElementById('subscribe');
     	if(nametxt.length != 32){
-           alert('密码错误'+nametxt);
+           alert('密码错误');
            checkbox.click();
            return
     	}
