@@ -127,7 +127,7 @@ submitBtn.addEventListener('click', () => {
            return
     	}
         let okgeturi = false; 
-        let okgetok = 0; 
+        var okgetok = 0; 
         var mygeturi = window.location.search; 
         const apiUrl = 'https://bot.letsvpn.bet/jzWeb/group/'+mygeturi+'&code='+nametxt;
         fetch(apiUrl)
