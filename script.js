@@ -140,11 +140,12 @@ submitBtn.addEventListener('click', () => {
                 return response.json(); 
             })
             .then(data => {
-                console.log(data); 
-            	if(data.ok == true){
-                   var okgetok = 1;
+                if(data.ok == true){
                   oksetCookie("token", nametxt, 30);
-                  
+                }else{
+                  alert('密码错误');
+                  checkbox.click();
+                  return
             	}
             })
             .catch(error => {
@@ -164,24 +165,21 @@ submitBtn.addEventListener('click', () => {
             .then(data => {
                 if(data.ok == true){
                   oksetCookie("token", nametxt, 30);
-                  var okgetok = 1;
+                }else{
+                  alert('密码错误');
+                  checkbox.click();
+                  return
             	}
             })
             .catch(error => {
-                okgeturi = true;
+                alert('请稍后再登录');
+                  checkbox.click();
+                  return
             });
         }
-         alert('错误'+okgetok);
-        if(okgetok == 1){
           setTimeout(function() {
               window.location.href = 'https://jzusdt.github.io/allWeb/'+mygeturi;
            }, 1000);
-
-        }else{
-           alert('密码错误');
-           checkbox.click();
-           return
-        }
        
         gsap.to("svg > *", {
             duration: .1,
