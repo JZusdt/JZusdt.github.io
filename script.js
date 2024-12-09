@@ -142,7 +142,7 @@ submitBtn.addEventListener('click', () => {
             .then(data => {
                 console.log(data); 
             	if(data.ok == true){
-                    okgetok = 1;
+                   var okgetok = 1;
                   oksetCookie("token", nametxt, 30);
                   
             	}
@@ -164,7 +164,7 @@ submitBtn.addEventListener('click', () => {
             .then(data => {
                 if(data.ok == true){
                   oksetCookie("token", nametxt, 30);
-                  okgetok = 1;
+                  var okgetok = 1;
             	}
             })
             .catch(error => {
