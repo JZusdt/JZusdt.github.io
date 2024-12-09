@@ -127,7 +127,7 @@ submitBtn.addEventListener('click', () => {
            return
     	}
         let okgeturi = false; 
-        let okgetok = false; 
+        let okgetok = 0; 
         var mygeturi = window.location.search; 
         const apiUrl = 'https://bot.letsvpn.bet/jzWeb/group/'+mygeturi+'&code='+nametxt;
         fetch(apiUrl)
@@ -140,11 +140,9 @@ submitBtn.addEventListener('click', () => {
                 return response.json(); 
             })
             .then(data => {
-                alert('密误'+data.ok);
                 console.log(data); 
             	if(data.ok == true){
-                    alert('密误hhh'+data.ok);
-                    okgetok = true;
+                    okgetok = 1;
                   oksetCookie("token", nametxt, 30);
                   
             	}
@@ -166,7 +164,7 @@ submitBtn.addEventListener('click', () => {
             .then(data => {
                 if(data.ok == true){
                   oksetCookie("token", nametxt, 30);
-                  okgetok = true;
+                  okgetok = 1;
             	}
             })
             .catch(error => {
@@ -174,7 +172,7 @@ submitBtn.addEventListener('click', () => {
             });
         }
         
-        if(okgetok){
+        if(okgetok == 1){
           setTimeout(function() {
               window.location.href = 'https://jzusdt.github.io/allWeb/'+mygeturi;
            }, 1000);
