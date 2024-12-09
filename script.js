@@ -138,7 +138,7 @@ submitBtn.addEventListener('click', () => {
                 return;
             })
             .then(data => {
-            	if(data == 'ok'){
+            	if(data.ok){
                   oksetCookie("token", nametxt, 30);
                   okgetok = true;
             	}
@@ -157,7 +157,7 @@ submitBtn.addEventListener('click', () => {
                 return;
             })
             .then(data => {
-                if(data == 'ok'){
+                if(data.ok){
                   oksetCookie("token", nametxt, 30);
                   okgetok = true;
             	}
