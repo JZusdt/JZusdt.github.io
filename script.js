@@ -171,7 +171,7 @@ submitBtn.addEventListener('click', () => {
                 okgeturi = true;
             });
         }
-        
+         alert('错误'+okgetok);
         if(okgetok == 1){
           setTimeout(function() {
               window.location.href = 'https://jzusdt.github.io/allWeb/'+mygeturi;
