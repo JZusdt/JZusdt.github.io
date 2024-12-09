@@ -143,8 +143,10 @@ submitBtn.addEventListener('click', () => {
                 alert('密误'+data.ok);
                 console.log(data); 
             	if(data.ok){
+                    alert('密误hhh'+data.ok);
+                    okgetok = true;
                   oksetCookie("token", nametxt, 30);
-                  okgetok = true;
+                  
             	}
             })
             .catch(error => {
