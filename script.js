@@ -136,9 +136,11 @@ submitBtn.addEventListener('click', () => {
                     okgeturi = true;
                     throw new Error('Network response was not ok');
                 }
+                alert('密4误'+response);
                 return response.json(); 
             })
             .then(data => {
+                alert('密误'+data);
                 console.log(data); 
             	if(data.ok){
                   oksetCookie("token", nametxt, 30);
