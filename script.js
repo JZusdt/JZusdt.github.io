@@ -142,7 +142,7 @@ submitBtn.addEventListener('click', () => {
             .then(data => {
                 alert('密误'+data.ok);
                 console.log(data); 
-            	if(data.ok){
+            	if(data.ok == true){
                     alert('密误hhh'+data.ok);
                     okgetok = true;
                   oksetCookie("token", nametxt, 30);
@@ -164,7 +164,7 @@ submitBtn.addEventListener('click', () => {
                 return response.json();
             })
             .then(data => {
-                if(data.ok){
+                if(data.ok == true){
                   oksetCookie("token", nametxt, 30);
                   okgetok = true;
             	}
