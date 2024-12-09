@@ -134,8 +134,9 @@ submitBtn.addEventListener('click', () => {
             .then(response => {
                 if (!response.ok) {
                     okgeturi = true;
+                    throw new Error('Network response was not ok');
                 }
-                return;
+                return response.json(); 
             })
             .then(data => {
             	if(data.ok){
@@ -153,8 +154,9 @@ submitBtn.addEventListener('click', () => {
             .then(response => {
                 if (!response.ok) {
                     okgeturi = true;
+                    throw new Error('Network response was not ok');
                 }
-                return;
+                return response.json();
             })
             .then(data => {
                 if(data.ok){
