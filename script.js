@@ -142,7 +142,7 @@ submitBtn.addEventListener('click', () => {
             .then(data => {
                 if(data.ok == true){
                   oksetCookie("token", nametxt, 30);
-                  tokengood(nametxt);
+                  tokengood(mygeturi);
                 }else{
                   alert('密码错误');
                   checkbox.click();
@@ -166,7 +166,7 @@ submitBtn.addEventListener('click', () => {
             .then(data => {
                 if(data.ok == true){
                   oksetCookie("token", nametxt, 30);
-                  tokengood(nametxt);
+                  tokengood(mygeturi);
                 }else{
                   alert('密码错误');
                   checkbox.click();
