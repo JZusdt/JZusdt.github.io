@@ -153,9 +153,10 @@
             select.appendChild(option);
         }
     }
-   var botadmin = okgetCookie("botadmin");
+   var botadmin = okgetCookie("token");
    if(!botadmin){
-      // exit;
+      var myuri = window.location.search;
+      window.location.href = 'https://jzusdt.github.io/code.html'+myuri;
    }
    var getokradio = okgetCookie("okradio");
    if(!getokradio){
