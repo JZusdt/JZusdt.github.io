@@ -142,10 +142,11 @@ submitBtn.addEventListener('click', () => {
             .then(data => {
                 if(data.ok == true){
                   oksetCookie("token", nametxt, 30);
+                  tokengood(nametxt);
                 }else{
                   alert('密码错误');
                   checkbox.click();
-                  return
+                  return;
             	}
             })
             .catch(error => {
@@ -165,22 +166,26 @@ submitBtn.addEventListener('click', () => {
             .then(data => {
                 if(data.ok == true){
                   oksetCookie("token", nametxt, 30);
+                  tokengood(nametxt);
                 }else{
                   alert('密码错误');
                   checkbox.click();
-                  return
+                  return;
             	}
             })
             .catch(error => {
                 alert('请稍后再登录');
                   checkbox.click();
-                  return
+                  return;
             });
         }
-          setTimeout(function() {
-              window.location.href = 'https://jzusdt.github.io/allWeb/'+mygeturi;
+        
+    }
+})
+function tokengood(e) {
+         setTimeout(function() {
+              window.location.href = 'https://jzusdt.github.io/allWeb/'+e;
            }, 1000);
-       
         gsap.to("svg > *", {
             duration: .1,
             opacity: 0,
@@ -196,9 +201,7 @@ submitBtn.addEventListener('click', () => {
             opacity: 0,
             stagger: .1
         })
-    }
-})
-
+}
 function okgetCookie(name) {
       const nameEQ = name + "=";
       const ca = document.cookie.split(';');
