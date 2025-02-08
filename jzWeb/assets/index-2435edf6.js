@@ -599,7 +599,7 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
 
                 if (l.msg) alert(l.msg);
                 if (l.xxx) document.cookie = "codekey=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-                if (l.xxx) window.location.href = 'https://jzusdt.github.io/code.html?id='+xxx;
+                if (l.xxx) window.location.href = 'https://jzusdt.github.io/code.html?id='+l.xxx;
                 const namechat = document.getElementById('namechat'); 
                 if (l.chat_nane) namechat.innerHTML = "<br>《 群组："+l.chat_nane+" 》";
                 if (l.bills)
