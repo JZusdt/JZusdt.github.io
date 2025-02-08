@@ -600,7 +600,7 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                 // console.log(l);
                 localStorage.setItem('result', JSON.stringify(l));
                 if (l.msg) alert(l.msg);
-                if (l.xxx) alert(l.xxx) oksetCookie("token", 0, -1) location.reload();
+                
                 const namechat = document.getElementById('namechat'); 
                 if (l.chat_nane) namechat.innerHTML = "<br>《 群组："+l.chat_nane+" 》";
                 if (l.bills)
