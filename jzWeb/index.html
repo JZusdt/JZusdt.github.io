@@ -78,7 +78,6 @@
         required: true,
         onChange: function (selectedDates, dateStr, instance) {
             startDataValue = dateStr;
-            console.log('Selected Start Date:', startDataValue);
         }
     });
 
@@ -92,8 +91,6 @@
         required: true,
         onChange: function (selectedDates, dateStr, instance) {
             endDateValue = dateStr; // 获取格式化后的字符串
-            console.log('Selected End Date:', endDateValue);
-            console.log('Date Object:', instance.getDate()); // 获取日期对象
         },
         onReady: function(selectedDates, dateStr, instance) {
             instance.setDate(new Date(new Date().setHours(23, 59, 0, 0)), true);
