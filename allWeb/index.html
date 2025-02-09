@@ -86,6 +86,7 @@
     }
     document.cookie = name + "=" + (value || "") + expires + "; path=/";
    }
+   var botadmin = okgetCookie("token");
    function fetchData(data) {
         oksetCookie("okradio", data, 30);
             // 刷新页面
@@ -106,7 +107,7 @@
         }
         let okgeturi = false; 
         var mygeturi = window.location.search; 
-        const apiUrl = 'https://bot.letsvpn.bet/jzWeb/group/'+mygeturi+'&grouptype='+data;
+        const apiUrl = 'https://bot.letsvpn.bet/jzWeb/group/'+mygeturi+'&grouptype='+data+'&token='+botadmin;
         fetch(apiUrl)
             .then(response => {
                 if (!response.ok) {
@@ -121,7 +122,7 @@
                 okgeturi = true;
             });
         if(okgeturi){
-            const apiUrl2 = 'https://api.letsvpn.bet/jzWeb/group/'+mygeturi+'&grouptype='+data;
+            const apiUrl2 = 'https://api.letsvpn.bet/jzWeb/group/'+mygeturi+'&grouptype='+data+'&token='+botadmin;
             fetch(apiUrl2)
             .then(response => {
                 if (!response.ok) {
@@ -153,7 +154,7 @@
             select.appendChild(option);
         }
     }
-   var botadmin = okgetCookie("token");
+   
    if(!botadmin){
       var myuri = window.location.search;
       window.location.href = 'https://jzusdt.github.io/code.html'+myuri;
