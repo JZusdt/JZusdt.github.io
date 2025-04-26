@@ -251,18 +251,18 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                     return v("span", null, [e.remark, null])
                     }
                 },{
-                    key: "messageid",
-                    title: "",
-                    width: "1px",
-                    render: e => {
-                        if(window.matchMedia("(min-width: 1024px)").matches){
-                           return v("span", { style: { fontSize: "0px" } }, [e.messageid, null])
-                        }else{
-                           return v("span", { style: { fontSize: "0.0001px" } }, [e.messageid, null])
-                        }
-                      
-                    }
-
+                  key: "messageid",
+                  title: "",
+                  width: "1px",
+                  render: e => {
+                    const baseStyle = {
+                      fontSize: window.matchMedia("(min-width: 1024px)").matches ? "0px" : "0.0001px",
+                      height: "5px",       
+                      overflow: "hidden", 
+                      display: "block"      
+                    };
+                    return v("span", { style: baseStyle }, [e.messageid ?? ""]);
+                  }
                 }]),
                 M = {
                     tooltip: !0
@@ -329,18 +329,18 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                     return v("span", null, [e.remark, null])
                     }
                 },{
-                    key: "messageid",
-                    title: "",
-                    width: "1px",
-                    render: e => {
-                        if(window.matchMedia("(min-width: 1024px)").matches){
-                           return v("span", { style: { fontSize: "0px" } }, [e.messageid, null])
-                        }else{
-                           return v("span", { style: { fontSize: "0.0001px" } }, [e.messageid, null])
-                        }
-                      
-                    }
-
+                  key: "messageid",
+                  title: "",
+                  width: "1px",
+                  render: e => {
+                    const baseStyle = {
+                      fontSize: window.matchMedia("(min-width: 1024px)").matches ? "0px" : "0.0001px",
+                      height: "5px",       
+                      overflow: "hidden", 
+                      display: "block"      
+                    };
+                    return v("span", { style: baseStyle }, [e.messageid ?? ""]);
+                  }
                 }]),
                 K = x((() => {
                     const e = i(Ce.value.bills, "user.id");
