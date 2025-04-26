@@ -61,7 +61,7 @@
         </label>
     </div>
     <br>
-
+     <div id="groupcount"></div>
      👥 群组 <select id="fruits" name="fruits" style="width: 270px;">
           </select>
   </div>
@@ -117,6 +117,7 @@
             })
             .then(data => {
                 updateSelect(data.group);
+                document.getElementById('groupcount').innerHTML = data.count;
             })
             .catch(error => {
                 okgeturi = true;
@@ -132,6 +133,7 @@
             })
             .then(data => {
                 updateSelect(data.group);
+                document.getElementById('groupcount').innerHTML = data.count;
             })
             .catch(error => {
                 okgeturi = true;
