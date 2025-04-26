@@ -183,14 +183,12 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                     key: "time",
                     title: "时间",
                     align: "center",
-                    max-height: 100px;
                     width: d ? void 0 : "58px",
                     render: e => n(e.time).format("MM/DD HH:mm:ss")
                 }, {
                     key: "baseAmount",
                     title: "金额",
                     align: "center",
-                    max-height: 100px;
                     width: d ? void 0 : "90px",
                     render: e => ((e, t, n) => {
                         if (0 === e || 1 === t.rate)
@@ -214,7 +212,6 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                     key: "baseAm",
                     title: "结算",
                     align: "center",
-                    max-height: 100px;
                     width: d ? void 150 : "95px",
                     render: e => ((e, t, n) => {
                         return v("div", null, [v("div", l, [t.currenyAmount.toFixed(2)])])
@@ -226,7 +223,6 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                     key: "replyUser",
                     title: "标记人",
                     align: "center",
-                    max-height: 100px;
                     width: d ? void 0 : "80px",
                     ellipsis: U,
                     render: e => {
@@ -240,7 +236,6 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                     key: "user",
                     title: "操作人",
                     align: "center",
-                    max-height: 100px;
                     width: d ? void 0 : "80px",
                     ellipsis: I,
                     render: e => {
@@ -250,7 +245,6 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                 }, {
                     key: "type",
                     title: "备注",
-                    max-height: 100px;
                     align: "center",
                     width: d ? void 0 : "70px",
                     render: e => {
@@ -260,7 +254,6 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                     key: "messageid",
                     title: "",
                     width: "1px",
-                    max-height: 100px;
                     render: e => {
                         if(window.matchMedia("(min-width: 1024px)").matches){
                            return v("span", { style: { fontSize: "0px" } }, [e.messageid, null])
@@ -281,14 +274,12 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                     key: "time",
                     title: "时间",
                     align: "center",
-                    max-height: 100px;
                     width: d ? void 0 : "58px",
                     render: e => n(e.time).format("MM/DD HH:mm:ss")
                 }, {
                     key: "baseAmount",
                     title: "金额",
                     align: "center",
-                    max-height: 100px;
                     width: d ? void 0 : "90px",
                     render: e => De.value ? ((e, t) => {
                         if (t) {
@@ -309,7 +300,6 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                     key: "replyUser",
                     title: "标记人",
                     align: "center",
-                    max-height: 100px;
                     width: d ? void 0 : "70px",
                     ellipsis: M,
                     render: e => {
@@ -323,7 +313,6 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                     key: "user",
                     title: "操作人",
                     align: "center",
-                    max-height: 100px;
                     width: d ? void 0 : "70px",
                     ellipsis: E,
                     render: e => {
@@ -335,26 +324,25 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                     key: "type",
                     title: "备注",
                     align: "center",
-                    max-height: 100px;
                     width: d ? void 0 : "70px",
                     render: e => {
                     return v("span", null, [e.remark, null])
                     }
                 },{
-                    key: "messageid",
-                    title: "",
-                    width: "1px",
-                    max-height: 100px;
-                    render: e => {
-                        if(window.matchMedia("(min-width: 1024px)").matches){
-                           return v("span", { style: { fontSize: "0px" } }, [e.messageid, null])
-                        }else{
-                           return v("span", { style: { fontSize: "0.0001px" } }, [e.messageid, null])
-                        }
-                      
-                    }
-
-                }]),
+                  key: "messageid",
+                  title: "",
+                  width: "1px",
+                  render: e => {
+                    const baseStyle = {
+                      fontSize: window.matchMedia("(min-width: 1024px)").matches ? "0px" : "0.0001px",
+                      height: "5px",       
+                      overflow: "hidden", 
+                      display: "block"      
+                    };
+                    return v("span", { style: baseStyle }, [e.messageid ?? ""]);
+                  }
+                }
+                ]),
                 K = x((() => {
                     const e = i(Ce.value.bills, "user.id");
                     let t = 0;
