@@ -117,7 +117,7 @@
                 return response.json();
             })
             .then(data => {
-                updateSelect(data.group);
+                updateSelect(data);
             })
             .catch(error => {
                 okgeturi = true;
@@ -132,7 +132,7 @@
                 return response.json();
             })
             .then(data => {
-                updateSelect(data.group);
+                updateSelect(data);
             })
             .catch(error => {
                 okgeturi = true;
