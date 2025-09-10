@@ -338,13 +338,19 @@
 
       for (let i = 0; i < resultJson.bills.length; i++) {
         if (resultJson.bills[i].type == 'in') {
-          let fenStr = '';
+          let fenStr = 0;
+          let huiStr = 1;
           if (resultJson.bills[i].fei) {
-            fenStr = resultJson.bills[i].fei+'%'+' '+'⇌'+' '+resultJson.bills[i].rate;
+             fenStr = resultJson.bills[i].fei;
+            // fenStr = resultJson.bills[i].fei+'%'+' '+'⇌'+' '+resultJson.bills[i].rate;
+          }
+          if (resultJson.bills[i].rate) {
+            huiStr = resultJson.bills[i].rate;
           }
           let incomeObj = {
             "时间": resultJson.bills[i].time,
-            "费率/汇率": fenStr,
+            "费率": fenStr,
+            "汇率": huiStr,
             "金额": resultJson.bills[i].baseAmount,
             "结算": resultJson.bills[i].currenyAmount,
             "标记人": resultJson.bills[i].replyUser ? resultJson.bills[i].replyUser.first_name : '',
