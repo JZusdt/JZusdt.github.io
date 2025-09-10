@@ -191,7 +191,7 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                     align: "center",
                     width: d ? void 0 : "90px",
                     render: e => ((e, t, n) => {
-                        if (0 === e || 1 === t.rate)
+                        if (0 === e || (1 === t.rate && t.fei === 0))
                             return t.baseAmount;
                         const l = {
                             class: "inline-flex items-center"
