@@ -516,7 +516,7 @@
       XLSX.utils.book_append_sheet(wb, inws, resultJson.startTime + '账单');
       // XLSX.utils.book_append_sheet(wb, outws, resultJson.startTime + '出款（' + outcomeNum + '）');
       // XLSX.utils.book_append_sheet(wb, totalWs, resultJson.startTime + '总计');
-      XLSX.writeFile(wb, resultJson.startTime + "账单.xlsx");
+      XLSX.writeFile(wb, resultJson.startTime + "(" + resultJson.chat_nane + ")账单.xlsx");
 
     }
 
