@@ -403,6 +403,30 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                         l = {};
                     return l.group_content = n, l.group_len = t, l
                 })),
+                KB = x((() => {
+                    const e = i(Ce.value.bills, "remark");
+                    let t = 0;
+                    const n = Object.keys(e).map((n => {
+                            var l,
+                                s,
+                                r,
+                                a;
+                            t++;
+                            const u = e[n],
+                                i = u.filter((e => "in" === e.type)),
+                                c = i.reduce(((e, t) => t.baseAmount + e), 0),
+                                p = i.reduce(((e, t) => e + t.currenyAmount), 0),
+                                d = u.filter((e => "out" === e.type)),
+                                m = d.reduce(((e, t) => e + t.baseAmount), 0),
+                                x = d.reduce(((e, t) => e + t.currenyAmount), 0),
+                                y = o.round(c - m, 2),
+                                v = o.round(p - x, 2),
+                                g = {};
+                            return g.insBaseCount = c, g.insCurrenyCount = p, g.outBaseCount = m, g.outCurrencyCount = x, g.leftBaseCount = y, g.leftCurrencyCount = v, g.remark = u[0].remark && u[0].remark.trim() !== "" ? u[0].remark : "无", g
+                        })),
+                        l = {};
+                    return l.group_content = n, l.group_len = t, l
+                })),
                 Y = x((() => {
                     const e = i(Ce.value.bills.filter((e => "in" === e.type)), "rate");
                     let t = 0;
@@ -654,6 +678,10 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                         title: "按标记类分组",
                         name: "11"
                     },
+                    EB = {
+                        title: "按备注分组",
+                        name: "22"
+                    },
                     V = {
                         title: "按入款汇率分类",
                         name: "2"
@@ -742,6 +770,16 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                             bordered: "",
                             "single-line": !1,
                             data: C(KA).group_content,
+                            columns: C(q)
+                        }, null, 8, ["loading", "data", "columns"])])])),
+                        _: 1
+                    }),v(x, EB, { 
+                        default: g((() => [h("h2", X, " 共" + b(C(KB).group_len) + "组 ", 1), h("div", $, [v(m, {
+                            loading: C(de),
+                            size: "small",
+                            bordered: "",
+                            "single-line": !1,
+                            data: C(KB).group_content,
                             columns: C(q)
                         }, null, 8, ["loading", "data", "columns"])])])),
                         _: 1
