@@ -355,7 +355,7 @@
             "结算": resultJson.bills[i].currenyAmount,
             "标记人": resultJson.bills[i].replyUser ? resultJson.bills[i].replyUser.first_name : '',
             "操作人": resultJson.bills[i].user ? resultJson.bills[i].user.first_name : '',
-            "备注": resultJson.bills[i].mark,
+            "备注": resultJson.bills[i].mark ? resultJson.bills[i].mark : '无',
           }
           income.push(incomeObj)
           income.sort(function (a, b) {
