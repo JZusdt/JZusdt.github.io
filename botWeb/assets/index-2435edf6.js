@@ -406,13 +406,13 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                 KB = x((() => {
                     const e = i(Ce.value.bills, "remark");
                     let t = 0;
-                    const n = Object.keys(e).map((n => {
+                    const n = Object.keys(e).map((remarkKey => {
                             var l,
                                 s,
                                 r,
                                 a;
                             t++;
-                            const u = e[n],
+                            const u = e[remarkKey];
                                 i = u.filter((e => "in" === e.type)),
                                 c = i.reduce(((e, t) => t.baseAmount + e), 0),
                                 p = i.reduce(((e, t) => e + t.currenyAmount), 0),
@@ -422,7 +422,7 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                                 y = o.round(c - m, 2),
                                 v = o.round(p - x, 2),
                                 g = {};
-                            return g.insBaseCount = c, g.insCurrenyCount = p, g.outBaseCount = m, g.outCurrencyCount = x, g.leftBaseCount = y, g.leftCurrencyCount = v, g.remark = n && n.trim() !== "" ? n : "无", g
+                            return g.insBaseCount = c, g.insCurrenyCount = p, g.outBaseCount = m, g.outCurrencyCount = x, g.leftBaseCount = y, g.leftCurrencyCount = v, g.remark = remarkKey && remarkKey.trim() !== "" ? remarkKey : "无", g
                         })),
                         l = {};
                     return l.group_content = n, l.group_len = t, l
