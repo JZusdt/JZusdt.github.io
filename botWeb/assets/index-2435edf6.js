@@ -671,11 +671,11 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                     };
                 M.onClick = Ee;
                 const E = {
-                        title: "按操作员分类",
+                        title: "按(操作员)分类",
                         name: "1"
                     },
                     EA = {
-                        title: "按标记类分组",
+                        title: "按(标记类)分组",
                         name: "11"
                     },
                     EB = {
@@ -683,11 +683,11 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                         name: "22"
                     },
                     V = {
-                        title: "按入款汇率分类",
+                        title: "按(入款汇率)分类",
                         name: "2"
                     },
                     Q = {
-                        title: "按入款汇率和操作人分类",
+                        title: "按(入款汇率和操作人)分类",
                         name: "3"
                     },
                     Z = {
