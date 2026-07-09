@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>账单</title>
+
+  <script type="module" crossorigin src="assets/polyfills-1837b84b.js"></script>
+  <script type="module" crossorigin src="assets/index-5026f0d8.js?v=6"></script>
+  <link rel="stylesheet" href="assets/index-ae2909cd.css">
+  <script
+    type="module">import.meta.url; import("_").catch(() => 1); async function* g() { }; if (location.protocol != "file:") { window.__vite_is_modern_browser = true }</script>
+  <script
+    type="module">!function () { if (window.__vite_is_modern_browser) return; console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored"); var e = document.getElementById("vite-legacy-polyfill"), n = document.createElement("script"); n.src = e.src, n.onload = function () { System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src')) }, document.body.appendChild(n) }();</script>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0">
+
+  <style>
+    .custom-text {
+      font-size: 10px;
+      color: grey;
+      margin-left: 20px;
+      margin-top: 12px;
+    }
+
+      .custom-text2 {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        line-height: 28px;
+        color: #666;
+        font-weight: 600;
+        margin-left: 20px;
+        margin-top: 20px;
+      }
+
+      .custom-text2 label,
+      .bill-filter-bar > span,
+      .bill-filter-bar label {
+        display: inline-flex;
+        align-items: center;
+        min-height: 28px;
+        line-height: 28px;
+      }
+
+      #checkbox1,
+      #split-negative-in-filter {
+        -webkit-appearance: none;
+        appearance: none;
+        box-sizing: border-box;
+        width: 18px;
+        height: 18px;
+        flex: 0 0 18px;
+        margin: 0;
+        border: 2px solid #8a8a8a;
+        border-radius: 50%;
+        background-color: #fff;
+        background-clip: content-box;
+        cursor: pointer;
+        vertical-align: middle;
+      }
+
+      #checkbox1:checked,
+      #split-negative-in-filter:checked {
+        border-color: #40a7e3;
+        background-image: radial-gradient(circle, #40a7e3 0 42%, transparent 46%);
+      }
+
+      #start-date-input,
+      #end-date-input {
+        box-sizing: border-box;
+        height: 30px;
+        min-width: 150px;
+        padding: 0 12px;
+        border: 0;
+        border-radius: 2px;
+        background: #f0f0f0;
+        color: #666;
+        font-size: 13px;
+        line-height: 30px;
+      }
+
+      #start-date-input:disabled,
+      #end-date-input:disabled {
+        color: #9a9a9a;
+        opacity: 1;
+      }
+
+    td {
+      background-color: transparent !important;
+    }
+
+    .highlight {
+      background-color: lightblue !important;
+      z-index: 999;
+      /* 设置高亮样式 */
+    }
+
+      .bill-filter-bar {
+        display: none;
+        flex-wrap: wrap;
+        gap: 10px 16px;
+        align-items: center;
+        margin: 12px 20px 0;
+        color: #666;
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 28px;
+      }
+
+    .bill-filter-bar.is-ready {
+      display: flex;
+    }
+
+      .bill-filter-bar label {
+        gap: 6px;
+        white-space: nowrap;
+      }
+
+      .bill-filter-bar select {
+        -webkit-appearance: none;
+        appearance: none;
+        box-sizing: border-box;
+        min-width: 72px;
+        max-width: 180px;
+        height: 30px;
+        padding: 0 30px 0 12px;
+        border: 0;
+        border-radius: 15px;
+        background-color: #ededed;
+        background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 12 12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 4.5 6 7.5 9 4.5' fill='none' stroke='%23666' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        background-size: 12px 12px;
+        color: #666;
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 30px;
+        outline: none;
+      }
+
+      #operator-filter {
+        min-width: 150px;
+      }
+
+    .bill-filter-summary {
+      display: none;
+      margin: 8px 20px 0;
+      color: grey;
+      font-size: 12px;
+      line-height: 1.8;
+    }
+
+    .bill-filter-summary.is-visible {
+      display: block;
+    }
+
+    .negative-in-section {
+      margin: 8px 0 0;
+    }
+
+    .negative-in-section h2 {
+      margin: 12px 0;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .negative-in-section > .n-data-table {
+      margin: 0 10px;
+    }
+
+    .negative-in-table {
+      width: calc(100% - 20px);
+      margin: 0 10px;
+      border-collapse: collapse;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .negative-in-table th,
+    .negative-in-table td {
+      border: 1px solid #efeff5;
+      padding: 8px 6px;
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+</head>
+
+<body>
+  <div class="custom-text">💡 点击当前账单可查历史，手机版请横屏查看 <a href="javascript:clearAll();">清理所有点击痕迹</a> <b id="namechat"></b>
+  </div>
+  <div class="custom-text2">
+    <input type="checkbox" id="checkbox1" name="checkbox1" value="value1">
+    <label for="checkbox1"></label>
+    <input type="text" id="start-date-input">
+    <input type="text" id="end-date-input">
+  </div>
+  <div id="bill-filter-bar" class="bill-filter-bar">
+    <label style="color: rgb(118, 146, 60);">筛选器</label>
+    <label><l style="color: rgb(0, 0, 0);">标记人</l>
+      <select id="reply-user-filter">
+        <option value="全部" selected>全部</option>
+      </select>
+    </label>
+    <label><l style="color: rgb(0, 0, 0);">备注</l>
+      <select id="remark-filter">
+        <option value="全部" selected>全部</option>
+      </select>
+    </label>
+    <label><l style="color: rgb(0, 0, 0);">操作人</l>
+      <select id="operator-filter">
+        <option value="全部" selected>全部</option>
+      </select>
+    </label>
+    <label>
+      <input type="checkbox" id="split-negative-in-filter">
+      <l style="color: rgb(0, 0, 0);">出账独立显示</l>
+    </label>
+  </div>
+  <div id="bill-filter-summary" class="bill-filter-summary"></div>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+<script>
+    if (!Array.from) {
+      Array.from = function (value) {
+        return Array.prototype.slice.call(value);
+      };
+    }
+
+    if (!Array.prototype.find) {
+      Array.prototype.find = function (callback, thisArg) {
+        for (var i = 0; i < this.length; i++) {
+          if (callback.call(thisArg, this[i], i, this)) return this[i];
+        }
+        return undefined;
+      };
+    }
+
+     function okgetCookie(name) {
+        var nameEQ = name + "=";
+        var ca = document.cookie.split(';');
+        for (var i = 0; i < ca.length; i++) {
+          var c = ca[i];
+          while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+          if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+        }
+      return null; // 如果没有找到 cookie，返回 null
+    }
+    var botadmin = okgetCookie("codekey");
+    var startDataValue = 0;
+    var endDateValue = 0;
+    window.billFilterState = {
+      replyUser: '全部',
+      operator: '全部',
+      remark: '全部',
+      splitNegativeIn: false
+    };
+
+    function billFilterText(value) {
+      return value === undefined || value === null ? '' : String(value);
+    }
+
+      function billFilterName(user) {
+        if (!user) return '';
+        return billFilterText(user.first_name);
+      }
+
+      function billFilterUserId(user) {
+        if (!user) return '';
+        return billFilterText(user.id);
+      }
+
+    function billFilterNumber(value) {
+      var number = Number(value);
+      return isFinite(number) ? number : 0;
+    }
+
+    function billFilterMoney(value) {
+      return billFilterNumber(value).toFixed(2);
+    }
+
+    function isBillFilterActive() {
+      return window.billFilterState.replyUser !== '全部' ||
+        window.billFilterState.operator !== '全部' ||
+        window.billFilterState.remark !== '全部';
+    }
+
+    window.getFilteredBillsForSummary = function () {
+      var result = localStorage.getItem('result');
+      if (!result) return [];
+      var resultJson;
+      try {
+        resultJson = JSON.parse(result);
+      } catch (error) {
+        return [];
+      }
+        var bills = Array.isArray(resultJson.bills) ? resultJson.bills : [];
+        return bills.filter(function (bill) {
+          var replyUserId = billFilterUserId(bill.replyUser);
+          var operatorId = billFilterUserId(bill.user);
+          var remark = billFilterText(bill.remark);
+          return (window.billFilterState.replyUser === '全部' || replyUserId === window.billFilterState.replyUser) &&
+            (window.billFilterState.operator === '全部' || operatorId === window.billFilterState.operator) &&
+            (window.billFilterState.remark === '全部' || remark === window.billFilterState.remark);
+        });
+      };
+
+    function getCurrentFilteredBills() {
+      return window.getFilteredBillsForSummary();
+    }
+
+    function findHeadingByText(tagName, text) {
+      var headings = Array.from(document.getElementsByTagName(tagName));
+      for (var i = 0; i < headings.length; i++) {
+        if (headings[i].textContent.indexOf(text) !== -1) return headings[i];
+      }
+      return null;
+    }
+
+    function renderNegativeInFallbackTable(bills) {
+      var oldSection = document.getElementById('negative-in-section');
+      if (oldSection && oldSection.parentNode) oldSection.parentNode.removeChild(oldSection);
+      if (!window.billFilterState.splitNegativeIn || bills.length === 0) return;
+      var negativeIds = bills.map(function (bill) {
+        return billFilterText(bill.messageid);
+      }).filter(function (messageId) {
+        return messageId !== '';
+      });
+        var vueOutHeading = null;
+        var allH2 = Array.from(document.getElementsByTagName('h2'));
+        for (var h2Index = 0; h2Index < allH2.length; h2Index++) {
+          if (allH2[h2Index].id !== 'negative-in-fallback-title' && allH2[h2Index].textContent.indexOf('出账(') !== -1) {
+            vueOutHeading = allH2[h2Index];
+            break;
+          }
+        }
+      if (vueOutHeading) return;
+
+      var section = document.createElement('div');
+      section.id = 'negative-in-section';
+      section.className = 'negative-in-section';
+      var outHeading = findHeadingByText('h2', '下发');
+      var title = outHeading ? outHeading.cloneNode(false) : document.createElement('h2');
+      title.id = 'negative-in-fallback-title';
+      title.textContent = '出账(' + bills.length + '笔) ';
+      section.appendChild(title);
+
+      var firstTable = document.getElementsByClassName('n-data-table-table')[0];
+      var sourceTableBlock = firstTable;
+      var parentBlock = firstTable ? firstTable.parentNode : null;
+      while (parentBlock && parentBlock !== document.body) {
+        if (parentBlock.classList && parentBlock.classList.contains('n-data-table')) {
+          sourceTableBlock = parentBlock;
+          break;
+        }
+        parentBlock = parentBlock.parentNode;
+      }
+      if (sourceTableBlock && negativeIds.length > 0) {
+        var clonedTableBlock = sourceTableBlock.cloneNode(true);
+        Array.from(clonedTableBlock.getElementsByTagName('tr')).forEach(function (row) {
+          var cells = row.getElementsByTagName('td');
+          if (cells.length === 0) return;
+          var lastCell = cells[cells.length - 1];
+          var messageId = lastCell.textContent.trim();
+          if (negativeIds.indexOf(messageId) !== -1) {
+            row.style.display = '';
+            return;
+          }
+          if (row.parentNode) row.parentNode.removeChild(row);
+        });
+        section.appendChild(clonedTableBlock);
+      } else {
+        var rows = bills.map(function (bill) {
+          return '<tr>' +
+            '<td>' + billFilterText(bill.time) + '</td>' +
+            '<td>' + billFilterMoney(bill.baseAmount) + '</td>' +
+            '<td>' + billFilterMoney(bill.currenyAmount) + '</td>' +
+            '<td>' + billFilterName(bill.replyUser) + '</td>' +
+            '<td>' + billFilterName(bill.user) + '</td>' +
+            '<td>' + billFilterText(bill.remark) + '</td>' +
+            '</tr>';
+        }).join('');
+        var tableWrapper = document.createElement('div');
+        tableWrapper.innerHTML =
+          '<table class="negative-in-table">' +
+          '<thead><tr><th>时间</th><th>金额</th><th>结算</th><th>标记人</th><th>操作人</th><th>备注</th></tr></thead>' +
+          '<tbody>' + rows + '</tbody>' +
+          '</table>';
+        section.appendChild(tableWrapper);
+      }
+
+      if (outHeading && outHeading.parentNode) {
+        outHeading.parentNode.insertBefore(section, outHeading);
+      }
+    }
+
+    window.applyNegativeInSplitFallback = function () {
+      var bills = getCurrentFilteredBills();
+      var inBills = bills.filter(function (bill) {
+        return bill.type === 'in';
+      });
+      var outBills = bills.filter(function (bill) {
+        return bill.type === 'out';
+      });
+      var negativeBills = inBills.filter(function (bill) {
+        return billFilterNumber(bill.baseAmount) < 0;
+      });
+      var negativeIds = negativeBills.map(function (bill) {
+        return billFilterText(bill.messageid);
+      }).filter(function (messageId) {
+        return messageId !== '';
+      });
+      var splitEnabled = !!window.billFilterState.splitNegativeIn;
+      var visibleInIds = inBills.map(function (bill) {
+        return billFilterText(bill.messageid);
+      }).filter(function (messageId) {
+        return messageId !== '';
+      });
+      var visibleOutIds = outBills.map(function (bill) {
+        return billFilterText(bill.messageid);
+      }).filter(function (messageId) {
+        return messageId !== '';
+      });
+
+      var inHeading = findHeadingByText('h1', '入账');
+      if (inHeading) {
+        inHeading.textContent = ' 入账(' + (splitEnabled ? inBills.length - negativeBills.length : inBills.length) + '笔) ';
+      }
+      var outHeadingText = findHeadingByText('h2', '下发');
+      if (outHeadingText) {
+        outHeadingText.textContent = ' 下发(' + outBills.length + '笔) ';
+      }
+
+      var firstTable = document.getElementsByClassName('n-data-table-table')[0];
+      if (firstTable) {
+        Array.from(firstTable.getElementsByTagName('tr')).forEach(function (row) {
+          var lastCell = row.lastElementChild;
+          if (!lastCell) return;
+          var messageId = lastCell.textContent.trim();
+          if (!messageId) return;
+          var shouldShow = visibleInIds.indexOf(messageId) !== -1;
+          if (splitEnabled && negativeIds.indexOf(messageId) !== -1) shouldShow = false;
+          row.style.display = shouldShow ? '' : 'none';
+        });
+      }
+
+      var secondTable = document.getElementsByClassName('n-data-table-table')[1];
+      if (secondTable) {
+        Array.from(secondTable.getElementsByTagName('tr')).forEach(function (row) {
+          var lastCell = row.lastElementChild;
+          if (!lastCell) return;
+          var messageId = lastCell.textContent.trim();
+          if (!messageId) return;
+          row.style.display = visibleOutIds.indexOf(messageId) !== -1 ? '' : 'none';
+        });
+      }
+
+      renderNegativeInFallbackTable(splitEnabled ? negativeBills : []);
+    };
+
+    window.applyBillDomFilters = function () {
+      window.updateBillFilterSummary(window.getFilteredBillsForSummary());
+      window.applyNegativeInSplitFallback();
+    };
+
+    window.billDomDataChanged = function () {
+      var result = localStorage.getItem('result');
+      if (!result) return;
+      var resultJson;
+      try {
+        resultJson = JSON.parse(result);
+      } catch (error) {
+        return;
+      }
+      var bills = Array.isArray(resultJson.bills) ? resultJson.bills : [];
+      window.updateBillFilterOptions(bills);
+      setTimeout(function () {
+        window.applyBillDomFilters();
+      }, 300);
+    };
+
+    var lastBillResultForFilters = '';
+    setInterval(function () {
+      var result = localStorage.getItem('result') || '';
+      if (result && result !== lastBillResultForFilters) {
+        lastBillResultForFilters = result;
+        window.billDomDataChanged();
+      }
+    }, 800);
+
+    window.updateBillFilterSummary = function (bills) {
+      var summary = document.getElementById('bill-filter-summary');
+      if (!summary) return;
+      if (!isBillFilterActive()) {
+        summary.classList.remove('is-visible');
+        summary.innerHTML = '';
+        return;
+      }
+
+      bills = Array.isArray(bills) ? bills : [];
+      var inPositiveBase = 0;
+      var inNegativeBase = 0;
+      var inBaseTotal = 0;
+      var inCurrencyTotal = 0;
+      var outCurrencyTotal = 0;
+
+      bills.forEach(function (bill) {
+        if (bill.type === 'in') {
+          var baseAmount = billFilterNumber(bill.baseAmount);
+          var currenyAmount = billFilterNumber(bill.currenyAmount);
+          if (baseAmount > 0) inPositiveBase += baseAmount;
+          if (baseAmount < 0) inNegativeBase += baseAmount;
+          inBaseTotal += baseAmount;
+          inCurrencyTotal += currenyAmount;
+        }
+        if (bill.type === 'out') {
+          outCurrencyTotal += billFilterNumber(bill.currenyAmount);
+        }
+      });
+
+      summary.innerHTML =
+        '<div><span style="color: rgb(0, 176, 240);">筛选后总计</span></div>' +
+        '<div>总明细：↓ ' + billFilterMoney(inPositiveBase) + ' ↑ ' + billFilterMoney(Math.abs(inNegativeBase)) + '</div>' +
+        '<div>总入款：' + billFilterMoney(inBaseTotal) + '</div>' +
+        '<div>应下发：' + billFilterMoney(inCurrencyTotal) + '</div>' +
+        '<div>已下发：' + billFilterMoney(outCurrencyTotal) + '</div>' +
+        '<div>待下发：' + billFilterMoney(inCurrencyTotal - outCurrencyTotal) + '</div>';
+      summary.classList.add('is-visible');
+    };
+
+    window.resetBillFilters = function () {
+      window.billFilterState.replyUser = '全部';
+      window.billFilterState.operator = '全部';
+      window.billFilterState.remark = '全部';
+      window.billFilterState.splitNegativeIn = false;
+      var replySelect = document.getElementById('reply-user-filter');
+      var operatorSelect = document.getElementById('operator-filter');
+      var remarkSelect = document.getElementById('remark-filter');
+      var splitCheckbox = document.getElementById('split-negative-in-filter');
+      var filterBar = document.getElementById('bill-filter-bar');
+      if (replySelect) replySelect.value = '全部';
+      if (operatorSelect) operatorSelect.value = '全部';
+      if (remarkSelect) remarkSelect.value = '全部';
+      if (splitCheckbox) splitCheckbox.checked = false;
+      if (filterBar) filterBar.classList.remove('is-ready');
+      window.updateBillFilterSummary([]);
+      if (typeof window.applyBillDomFilters === 'function') window.applyBillDomFilters();
+    };
+
+      function addBillFilterOption(options, value, label) {
+        value = billFilterText(value);
+        if (!value) return;
+        for (var i = 0; i < options.length; i++) {
+          if (options[i].value === value) return;
+        }
+        options.push({
+          value: value,
+          label: label || value
+        });
+      }
+
+      function fillBillFilterOptions(selectId, values, selectedValue) {
+        var select = document.getElementById(selectId);
+        if (!select) return;
+        var currentValue = selectedValue || select.value || '全部';
+        select.innerHTML = '<option value="全部">全部</option>';
+        var hasCurrentValue = currentValue === '全部';
+        values.forEach(function (item) {
+          var value = typeof item === 'object' ? item.value : item;
+          var label = typeof item === 'object' ? item.label : item;
+          var option = document.createElement('option');
+          option.value = value;
+          option.textContent = label;
+          select.appendChild(option);
+          if (value === currentValue) hasCurrentValue = true;
+        });
+        select.value = hasCurrentValue ? currentValue : '全部';
+      }
+
+    window.updateBillFilterOptions = function (bills) {
+      bills = Array.isArray(bills) ? bills : [];
+      var filterBar = document.getElementById('bill-filter-bar');
+      if (filterBar) {
+        if (bills.length > 0) filterBar.classList.add('is-ready');
+        else filterBar.classList.remove('is-ready');
+      }
+        var replyUsers = [];
+        var operators = [];
+        var remarks = [];
+        bills.forEach(function (bill) {
+          var replyUserId = billFilterUserId(bill.replyUser);
+          var replyUserName = billFilterName(bill.replyUser);
+          var operatorId = billFilterUserId(bill.user);
+          var operatorName = billFilterName(bill.user);
+          var remark = billFilterText(bill.remark);
+          addBillFilterOption(replyUsers, replyUserId, replyUserName);
+          addBillFilterOption(operators, operatorId, operatorName);
+          if (remark && remarks.indexOf(remark) === -1) remarks.push(remark);
+        });
+      fillBillFilterOptions('reply-user-filter', replyUsers, window.billFilterState.replyUser);
+      fillBillFilterOptions('operator-filter', operators, window.billFilterState.operator);
+      fillBillFilterOptions('remark-filter', remarks, window.billFilterState.remark);
+      var replySelect = document.getElementById('reply-user-filter');
+      var operatorSelect = document.getElementById('operator-filter');
+      var remarkSelect = document.getElementById('remark-filter');
+      window.billFilterState.replyUser = replySelect ? replySelect.value || '全部' : '全部';
+      window.billFilterState.operator = operatorSelect ? operatorSelect.value || '全部' : '全部';
+      window.billFilterState.remark = remarkSelect ? remarkSelect.value || '全部' : '全部';
+      setTimeout(function () {
+        if (typeof window.applyBillDomFilters === 'function') window.applyBillDomFilters();
+      }, 300);
+    };
+
+    function bindBillFilterSelect(selectId, stateKey) {
+      var select = document.getElementById(selectId);
+      if (!select) return;
+      select.addEventListener('change', function () {
+        window.billFilterState[stateKey] = select.value || '全部';
+        setTimeout(function () {
+          if (typeof window.applyBillDomFilters === 'function') window.applyBillDomFilters();
+        }, 300);
+        setTimeout(highlight, 100);
+      });
+    }
+
+    bindBillFilterSelect('reply-user-filter', 'replyUser');
+    bindBillFilterSelect('operator-filter', 'operator');
+    bindBillFilterSelect('remark-filter', 'remark');
+
+    var splitNegativeInFilter = document.getElementById('split-negative-in-filter');
+    function refreshSplitNegativeInFilter() {
+      if (splitNegativeInFilter) {
+        window.billFilterState.splitNegativeIn = splitNegativeInFilter.checked;
+      }
+      setTimeout(function () {
+        if (typeof window.applyBillDomFilters === 'function') window.applyBillDomFilters();
+      }, 300);
+      setTimeout(function () {
+        if (typeof highlight === 'function') highlight();
+      }, 100);
+    }
+
+    if (splitNegativeInFilter) {
+      splitNegativeInFilter.addEventListener('change', refreshSplitNegativeInFilter);
+      splitNegativeInFilter.addEventListener('click', function () {
+        setTimeout(refreshSplitNegativeInFilter, 0);
+      });
+    }
+
+    flatpickr("#start-date-input", {
+        minDate: "2000-01-01",
+        maxDate: null,
+        defaultDate: "today",
+        dateFormat: "Y-m-d H:i",
+        enableTime: true,
+        time_24hr: true,
+        required: true,
+        onChange: function (selectedDates, dateStr, instance) {
+            startDataValue = dateStr;
+        }
+    });
+
+    flatpickr("#end-date-input", {
+        minDate: "2000-01-01",
+        maxDate: null,
+        defaultDate: new Date(new Date().setHours(23, 59, 0, 0)), // 设置默认时间为23:59
+        dateFormat: "Y-m-d H:i",
+        enableTime: true,
+        time_24hr: true,
+        required: true,
+        onChange: function (selectedDates, dateStr, instance) {
+            endDateValue = dateStr; // 获取格式化后的字符串
+        },
+        onReady: function(selectedDates, dateStr, instance) {
+            instance.setDate(new Date(new Date().setHours(23, 59, 0, 0)), true);
+        }
+    });
+</script>
+  <script>
+    var checktime = 0;
+    // 获取复选框和按钮元素
+    var checkbox1 = document.getElementById("checkbox1");
+    var startDate = document.getElementById("start-date-input");
+    var endDate = document.getElementById("end-date-input");
+    //  const nSpaceElement = app.querySelector('.n-space');
+    //  const nSpaceElement = app.querySelector('.n-space');
+
+    if (startDate) startDate.setAttribute("disabled", "true"); // 添加 disabled 属性
+    if (endDate) endDate.setAttribute("disabled", "true"); // 添加 disabled 属性
+    // 监听复选框的点击事件
+    if (checkbox1) checkbox1.addEventListener("click", function () {
+      if (checkbox1.checked) {
+        checktime = 1;
+        if (startDate) startDate.removeAttribute("disabled"); // 移除 disabled 属性
+        if (endDate) endDate.removeAttribute("disabled"); // 移除 disabled 属性
+      } else {
+        checktime = 0;
+        if (startDate) startDate.setAttribute("disabled", "true"); // 添加 disabled 属性
+        if (endDate) endDate.setAttribute("disabled", "true"); // 添加 disabled 属性
+      }
+    });
+
+
+    // 清空所有高亮
+    function clearAll() {
+      localStorage.removeItem('table1HighLightRow');
+      localStorage.removeItem('table2HighLightRow');
+      location.reload()
+    }
+
+
+    // 获取之前保存的选中行的状态
+    var table1HighLightRow = JSON.parse(localStorage.getItem('table1HighLightRow')) || [];
+    var table2HighLightRow = JSON.parse(localStorage.getItem('table2HighLightRow')) || [];
+
+    // 定时检测异步数据加载完毕状态 table1
+
+    function table1() {
+      var checkTableLoaded1 = setInterval(function () {
+        var tables1 = document.getElementsByClassName("n-data-table-table")[0];
+        if (!tables1) return;
+        var rows1 = tables1.getElementsByTagName('tr');
+        if (rows1.length > 1) {
+          clearInterval(checkTableLoaded1);  // 检查到数据加载完毕，清除定时器
+
+          // 执行高亮
+          rows1 = Array.from(rows1);
+          rows1.forEach(function (row) {
+            if (!row.lastElementChild) return;
+              var lastTdValue = row.lastElementChild.textContent;
+            if (table1HighLightRow.indexOf(lastTdValue) !== -1) {
+              row.classList.add('highlight');
+            }
+          });
+
+
+          for (var i = 0; i < rows1.length; i++) {
+            var p;
+            (function (p) {
+              rows1[p].onclick = function () {
+                if (!rows1[p].lastElementChild) return;
+                if (this.classList.contains('highlight')) {
+                  this.classList.remove('highlight');
+                  var lastTdValue = rows1[p].lastElementChild.textContent;
+                  var selectedIndex = table1HighLightRow.indexOf(lastTdValue);
+                  table1HighLightRow.splice(selectedIndex, 1);
+
+                } else {
+                  this.classList.add('highlight');
+                  var lastTdValue = rows1[p].lastElementChild.textContent;
+                  table1HighLightRow.push(lastTdValue);
+                }
+                localStorage.setItem('table1HighLightRow', JSON.stringify(table1HighLightRow));
+              }
+            })(i);
+          }
+        }
+      }, 1500);
+    }
+
+    table1();
+
+
+    // 定时检测异步数据加载完毕状态 table2
+    function table2() {
+      var checkTableLoaded2 = setInterval(function () {
+        var tables2 = document.getElementsByClassName("n-data-table-table")[1];
+        if (!tables2) return;
+        var rows2 = tables2.getElementsByTagName('tr');
+        if (rows2.length > 1) {
+          clearInterval(checkTableLoaded2);  // 检查到数据加载完毕，清除定时器
+
+          // 执行高亮
+          rows2 = Array.from(rows2);
+          rows2.forEach(function (row) {
+            if (!row.lastElementChild) return;
+            var lastTdValue = row.lastElementChild.textContent;
+            if (table2HighLightRow.indexOf(lastTdValue) !== -1) {
+              row.classList.add('highlight');
+            }
+          });
+
+          for (var i = 0; i < rows2.length; i++) {
+            var p;
+            (function (p) {
+              rows2[p].onclick = function () {
+                if (!rows2[p].lastElementChild) return;
+                if (this.classList.contains('highlight')) {
+                  this.classList.remove('highlight');
+                  var lastTdValue = rows2[p].lastElementChild.textContent;
+                  var selectedIndex = table2HighLightRow.indexOf(lastTdValue);
+                  table2HighLightRow.splice(selectedIndex, 1);
+                } else {
+                  this.classList.add('highlight');
+                  var lastTdValue = rows2[p].lastElementChild.textContent;
+                  table2HighLightRow.push(lastTdValue);
+                }
+                localStorage.setItem('table2HighLightRow', JSON.stringify(table2HighLightRow));
+              }
+            })(i);
+          }
+
+        }
+      }, 1500);
+    }
+    table2()
+
+    // 高亮代码
+
+    function highlight() {
+
+      var checkTableLoaded1 = setInterval(function () {
+        var tables1 = document.getElementsByClassName("n-data-table-table")[0];
+        if (!tables1) return;
+        var rows1 = tables1.getElementsByTagName('tr');
+
+        if (rows1.length > 1) {
+          clearInterval(checkTableLoaded1);  // 检查到数据加载完毕，清除定时器
+          rows1 = Array.from(rows1);
+          rows1.forEach(function (row) {
+            row.classList.remove('highlight');
+          });
+          setTimeout(function () {
+            rows1.forEach(function (row) {
+              row.classList.remove('highlight');
+              if (!row.lastElementChild) return;
+              var lastTdValue = row.lastElementChild.textContent;
+              if (table1HighLightRow.indexOf(lastTdValue) !== -1) {
+                row.classList.add('highlight');
+              }
+            });
+            table1()
+          }, 1500)
+        }
+      }, 500);
+
+
+
+      var checkTableLoaded2 = setInterval(function () {
+        var tables2 = document.getElementsByClassName("n-data-table-table")[1];
+        if (!tables2) return;
+        var rows2 = tables2.getElementsByTagName('tr');
+        if (rows2.length > 1) {
+          clearInterval(checkTableLoaded2);  // 检查到数据加载完毕，清除定时器
+          rows2 = Array.from(rows2);
+          rows2.forEach(function (row) {
+            row.classList.remove('highlight');
+          });
+          setTimeout(function () {
+            rows2.forEach(function (row) {
+              row.classList.remove('highlight');
+              if (!row.lastElementChild) return;
+              var lastTdValue = row.lastElementChild.textContent;
+              if (table2HighLightRow.indexOf(lastTdValue) !== -1) {
+                row.classList.add('highlight');
+              }
+            });
+            table2()
+          }, 1500)
+        }
+      }, 500);
+    }
+    // 监听按钮点击事件
+    setTimeout(function () {
+      var queryBtn = document.querySelector('button[data-v-10d5ad81]');
+      if (!queryBtn) return;
+      queryBtn.addEventListener('click', function () {
+        highlight()
+      })
+    }, 2000)
+
+
+    // 监听按钮点击事件
+    setTimeout(function () {
+      var queryBtn = document.querySelector('button[data-v-10d5ad81]');
+      if (!queryBtn || !queryBtn.parentNode) return;
+      // 创建一个新的按钮元素
+      var newBtn = document.createElement('button');
+      newBtn.textContent = '导出xlsx';
+      newBtn.id = 'exportBtn';
+
+      newBtn.classList.add('__button-1bcgj6e-llmd', 'n-button', 'n-button--default-type', 'n-button--large-type', 'n-button--block', 'exportBtn')
+      if (!queryBtn.nextSibling) {
+        queryBtn.parentNode.appendChild(newBtn);
+      } else {
+        queryBtn.parentNode.insertBefore(newBtn, queryBtn.nextSibling);
+      }
+
+      // 监听导出按钮点击事件
+      var exportBtn = document.getElementById('exportBtn');
+      if (!exportBtn) return;
+      exportBtn.addEventListener('click', function () {
+        getExcel()
+      });
+    }, 2000)
+
+
+    function getExcel() {
+
+      var result = localStorage.getItem('result');
+      if (!result) return;
+
+      var resultJson = JSON.parse(result);
+      if (!resultJson || !Array.isArray(resultJson.bills)) return;
+      // console.log(111, resultJson);
+
+
+      var income = [];
+      var incomeNum = 0;
+      var outcome = [];
+      var outcomeNum = 0;
+
+
+      var total = []
+      // 619
+      var totalObj = {
+        'H 回款': resultJson.usd_h ? resultJson.usd_h : 0,
+        'P 寄存': resultJson.usd_p ? resultJson.usd_p : 0,
+        '总入款': resultJson.totalInBase ? resultJson.totalInBase : 0,
+       // '总出款': resultJson.totalInBaseout ? resultJson.totalInBaseout : 0,
+        '应下发': resultJson.totalOutBase ? resultJson.totalOutBase : 0,
+        '已下发': resultJson.outBase ? resultJson.outBase : 0,
+        '待下发': resultJson.notOutBase ? resultJson.notOutBase : 0,
+      }
+      total.push(totalObj)
+      // console.log('totalObj', totalObj);
+
+
+      for (var i = 0; i < resultJson.bills.length; i++) {
+        if (resultJson.bills[i].type == 'in') {
+          var fenStr = 0;
+          var huiStr = 1;
+          if (resultJson.bills[i].fei) {
+             fenStr = resultJson.bills[i].fei;
+            // fenStr = resultJson.bills[i].fei+'%'+' '+'⇌'+' '+resultJson.bills[i].rate;
+          }
+          if (resultJson.bills[i].rate) {
+            huiStr = resultJson.bills[i].rate;
+          }
+          var incomeObj = {
+            "时间": resultJson.bills[i].time,
+            "费率": fenStr,
+            "汇率": huiStr,
+            "金额": resultJson.bills[i].baseAmount,
+            "结算": resultJson.bills[i].currenyAmount,
+            "标记人": resultJson.bills[i].replyUser ? resultJson.bills[i].replyUser.first_name : '',
+            "操作人": resultJson.bills[i].user ? resultJson.bills[i].user.first_name : '',
+            "备注": resultJson.bills[i].remark ? resultJson.bills[i].remark : '',
+          }
+          income.push(incomeObj)
+          income.sort(function (a, b) {
+            var dateA = new Date(a.时间);
+            var dateB = new Date(b.时间);
+            return dateA - dateB;
+          })
+          incomeNum++;
+        }
+
+        if (resultJson.bills[i].type == 'out') {
+          var outcomeObj = {
+            "时间": resultJson.bills[i].time,
+            "金额": resultJson.bills[i].baseAmount,
+            "标记人": resultJson.bills[i].replyUser ? resultJson.bills[i].replyUser.first_name : '',
+            "操作人": resultJson.bills[i].user ? resultJson.bills[i].user.first_name : '',
+            "备注": resultJson.bills[i].remark ? resultJson.bills[i].remark : '',
+          }
+          outcome.push(outcomeObj)
+          outcome.sort(function (a, b) {
+            var dateA = new Date(a.时间);
+            var dateB = new Date(b.时间);
+            return dateA - dateB;
+          })
+          outcomeNum++;
+        }
+      }
+
+      // 填充空数据
+      for (var blankIndex = 0; blankIndex < 100; blankIndex++) {
+        income.push({
+          "时间": '',
+          "金额": '',
+          "结算": '',
+          "标记人": '',
+          "操作人": '',
+          "备注": '',
+        })
+      }
+
+
+
+
+      var inws = XLSX.utils.json_to_sheet(income);
+
+
+      // 出库数据 12 6/16
+
+
+      inws['A' + (parseInt(incomeNum) + 5)] = { t: 's', v: '时间', r: '<fill>', h: 'filled' };
+      inws['B' + (parseInt(incomeNum) + 5)] = { t: 's', v: '金额', r: '<fill>', h: 'filled' };
+      inws['C' + (parseInt(incomeNum) + 5)] = { t: 's', v: '标记人', r: '<fill>', h: 'filled' };
+      inws['D' + (parseInt(incomeNum) + 5)] = { t: 's', v: '操作人', r: '<fill>', h: 'filled' };
+      inws['E' + (parseInt(incomeNum) + 5)] = { t: 's', v: '备注', r: '<fill>', h: 'filled' };
+
+      var letters = ['A', 'B', 'C', 'D', 'E'];
+
+      for (var outcomeIndex = 0; outcomeIndex < outcome.length; outcomeIndex++) {
+        inws['A' + (parseInt(incomeNum) + 5 + outcomeIndex + 1)] = { t: 's', v: outcome[outcomeIndex].时间, r: '<fill>', h: 'filled' };
+        inws['B' + (parseInt(incomeNum) + 5 + outcomeIndex + 1)] = { t: 's', v: outcome[outcomeIndex].金额, r: '<fill>', h: 'filled' };
+        inws['C' + (parseInt(incomeNum) + 5 + outcomeIndex + 1)] = { t: 's', v: outcome[outcomeIndex].标记人, r: '<fill>', h: 'filled' };
+        inws['D' + (parseInt(incomeNum) + 5 + outcomeIndex + 1)] = { t: 's', v: outcome[outcomeIndex].操作人, r: '<fill>', h: 'filled' };
+        inws['E' + (parseInt(incomeNum) + 5 + outcomeIndex + 1)] = { t: 's', v: outcome[outcomeIndex].备注, r: '<fill>', h: 'filled' };
+      }
+
+      var border = {
+        top: { style: "thin", color: { auto: 1 } },
+        right: { style: "thin", color: { auto: 1 } },
+        bottom: { style: "thin", color: { auto: 1 } },
+        left: { style: "thin", color: { auto: 1 } }
+      };
+     
+      // // 总计数据
+      inws['A' + (parseInt(incomeNum) + parseInt(outcomeNum) + 10)] = { t: 's', v: '总计', r: '<fill>', h: 'filled' };
+      inws['C' + (parseInt(incomeNum) + parseInt(outcomeNum) + 10)] = { t: 's', v: '已入账（' + incomeNum + '笔）', r: '<fill>', h: 'filled' };
+      inws['D' + (parseInt(incomeNum) + parseInt(outcomeNum) + 10)] = { t: 's', v: '已下发（' + outcomeNum + '笔）', r: '<fill>', h: 'filled' };
+      inws['A' + (parseInt(incomeNum) + parseInt(outcomeNum) + 11)] = { t: 's', v: 'H 回款', r: '<fill>', h: 'filled' };
+      inws['A' + (parseInt(incomeNum) + parseInt(outcomeNum) + 12)] = { t: 's', v: 'P 寄存', r: '<fill>', h: 'filled' };
+      inws['A' + (parseInt(incomeNum) + parseInt(outcomeNum) + 13)] = { t: 's', v: '总入款', r: '<fill>', h: 'filled' };
+    //  inws['A' + (parseInt(incomeNum) + parseInt(outcomeNum) + 14)] = { t: 's', v: '总明细', r: '<fill>', h: 'filled' };
+      inws['A' + (parseInt(incomeNum) + parseInt(outcomeNum) + 14)] = { t: 's', v: '应下发', r: '<fill>', h: 'filled' };
+      inws['A' + (parseInt(incomeNum) + parseInt(outcomeNum) + 15)] = { t: 's', v: '已下发', r: '<fill>', h: 'filled' };
+      inws['A' + (parseInt(incomeNum) + parseInt(outcomeNum) + 16)] = { t: 's', v: '待下发', r: '<fill>', h: 'filled' };
+
+      inws['B' + (parseInt(incomeNum) + parseInt(outcomeNum) + 11)] = { t: 's', v: resultJson.usd_h ? resultJson.usd_h : 0, r: '<fill>', h: 'filled' };
+      inws['B' + (parseInt(incomeNum) + parseInt(outcomeNum) + 12)] = { t: 's', v: resultJson.usd_p ? resultJson.usd_p : 0, r: '<fill>', h: 'filled' };
+      inws['B' + (parseInt(incomeNum) + parseInt(outcomeNum) + 13)] = { t: 's', v: resultJson.totalInBase ? resultJson.totalInBase : 0, r: '<fill>', h: 'filled' };
+     // inws['B' + (parseInt(incomeNum) + parseInt(outcomeNum) + 14)] = { t: 's', v: resultJson.totalInBaseout ? resultJson.totalInBaseout : 0, r: '<fill>', h: 'filled' };
+      inws['B' + (parseInt(incomeNum) + parseInt(outcomeNum) + 14)] = { t: 's', v: resultJson.totalOutBase ? resultJson.totalOutBase : 0, r: '<fill>', h: 'filled' };
+      inws['B' + (parseInt(incomeNum) + parseInt(outcomeNum) + 15)] = { t: 's', v: resultJson.outBase ? resultJson.outBase : 0, r: '<fill>', h: 'filled' };
+      inws['B' + (parseInt(incomeNum) + parseInt(outcomeNum) + 16)] = { t: 's', v: resultJson.notOutBase ? resultJson.notOutBase.toFixed(2) : 0, r: '<fill>', h: 'filled' };
+       
+
+
+
+      // 设置列宽（假设您有100列）
+      inws['!cols'] = [];
+      for (var colIndex = 0; colIndex < 100; colIndex++) {
+        inws['!cols'].push({ wpx: 150 });
+
+      }
+
+      // 设置行高（假设您有100行）
+      inws['!rows'] = [];
+      for (var rowIndex = 0; rowIndex < 100; rowIndex++) {
+        inws['!rows'].push({ hpt: 20 }); // 行高是以磅为单位的
+        if (rowIndex == (parseInt(incomeNum) + parseInt(outcomeNum) + 10)) {
+          inws['!rows'][rowIndex] = { wpx: 150, font: { bold: true } };
+        }
+      }
+
+      var outws = XLSX.utils.json_to_sheet(outcome);
+      // 设置列宽
+      outws['!cols'] = [
+        { wpx: 100 },
+        { wpx: 100 },
+        { wpx: 100 },
+        { wpx: 100 },
+        { wpx: 100 },
+        { wpx: 100 },
+      ];
+
+      // 设置行高
+      outws['!rows'] = [
+        { hpt: 20 },
+        { hpt: 20 },
+        { hpt: 20 },
+        { hpt: 20 },
+        { hpt: 20 },
+        { hpt: 20 }
+      ];
+
+      var totalWs = XLSX.utils.json_to_sheet(total);
+      totalWs['A10'] = { v: 'Hello' };
+      totalWs['!cols'] = [
+        { wpx: 100 },
+        { wpx: 100 },
+        { wpx: 100 },
+        { wpx: 100 },
+        { wpx: 100 },
+        { wpx: 100 },
+      ];
+
+      totalWs['!rows'] = [
+        { hpt: 20 },
+        { hpt: 20 },
+        { hpt: 20 },
+        { hpt: 20 },
+        { hpt: 20 },
+        { hpt: 20 }
+      ];
+
+      var wb = XLSX.utils.book_new();
+
+
+
+
+      XLSX.utils.book_append_sheet(wb, inws, resultJson.startTime + '账单');
+      // XLSX.utils.book_append_sheet(wb, outws, resultJson.startTime + '出款（' + outcomeNum + '）');
+      // XLSX.utils.book_append_sheet(wb, totalWs, resultJson.startTime + '总计');
+      XLSX.writeFile(wb, resultJson.startTime + "(" + resultJson.chat_nane + ")账单.xlsx");
+
+    }
+
+  </script>
+
+  <div id="app"></div>
+  <script
+    nomodule>!function () { var e = document, t = e.createElement("script"); if (!("noModule" in t) && "onbeforeload" in t) { var n = !1; e.addEventListener("beforeload", (function (e) { if (e.target === t) n = !0; else if (!e.target.hasAttribute("nomodule") || !n) return; e.preventDefault() }), !0), t.type = "module", t.src = ".", e.head.appendChild(t), t.remove() } }();</script>
+  <script nomodule crossorigin id="vite-legacy-polyfill" src="assets/polyfills-legacy-001d9dcc.js"></script>
+  <script nomodule crossorigin id="vite-legacy-entry"
+    data-src="assets/index-legacy-525cdbbd.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  <center>
+    <div class="custom-text" style="color:#d4d4d8;">TG智蚁记账机器人售后客服   @i555i   @i999i   @i3333i</div>
+  </center><br>
+</body>
+
+<style>
+        .exportBtn {
+            position: relative;
+            border: 1.5px solid black; 
+            border-radius: 25px; 
+            top: -34px;
+            left: 250px;
+            font-size: 11px;
+            width: 70px!important; 
+            height: 28px!important; 
+
+        }
+</style>
+
+</html>
