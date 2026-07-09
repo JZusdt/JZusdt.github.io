@@ -9,7 +9,7 @@
   <title>账单</title>
 
   <script type="module" crossorigin src="assets/polyfills-1837b84b.js"></script>
-  <script type="module" crossorigin src="assets/index-5026f0d8.js?v=6"></script>
+  <script type="module" crossorigin src="assets/index-5026f0d8.js?v=7"></script>
   <link rel="stylesheet" href="assets/index-ae2909cd.css">
   <script
     type="module">import.meta.url; import("_").catch(() => 1); async function* g() { }; if (location.protocol != "file:") { window.__vite_is_modern_browser = true }</script>
@@ -112,9 +112,14 @@
         line-height: 28px;
       }
 
-    .bill-filter-bar.is-ready {
-      display: flex;
-    }
+	    .bill-filter-bar.is-ready {
+	      display: flex;
+	    }
+
+	    .bill-filter-bar.is-error {
+	      display: flex;
+	      color: #d03050;
+	    }
 
       .bill-filter-bar label {
         gap: 6px;
@@ -171,6 +176,26 @@
 
     .negative-in-section > .n-data-table {
       margin: 0 10px;
+    }
+
+    .negative-in-section .n-data-table-table {
+      table-layout: fixed;
+    }
+
+    .negative-in-section .negative-in-operator-cell,
+    .negative-in-table th:nth-child(5),
+    .negative-in-table td:nth-child(5) {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .negative-in-section .negative-in-operator-cell * {
+      display: block;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .negative-in-table {
@@ -250,12 +275,13 @@
         }
       return null; // 如果没有找到 cookie，返回 null
     }
-    var botadmin = okgetCookie("codekey");
-    var startDataValue = 0;
-    var endDateValue = 0;
-    window.billFilterState = {
-      replyUser: '全部',
-      operator: '全部',
+	    var botadmin = okgetCookie("codekey");
+	    var startDataValue = 0;
+	    var endDateValue = 0;
+	    localStorage.removeItem('result');
+	    window.billFilterState = {
+	      replyUser: '全部',
+	      operator: '全部',
       remark: '全部',
       splitNegativeIn: false
     };
@@ -283,11 +309,28 @@
       return billFilterNumber(value).toFixed(2);
     }
 
-    function isBillFilterActive() {
-      return window.billFilterState.replyUser !== '全部' ||
-        window.billFilterState.operator !== '全部' ||
-        window.billFilterState.remark !== '全部';
-    }
+	    function isBillFilterActive() {
+	      return window.billFilterState.replyUser !== '全部' ||
+	        window.billFilterState.operator !== '全部' ||
+	        window.billFilterState.remark !== '全部';
+	    }
+
+	    window.clearBillDomData = function () {
+	      localStorage.removeItem('result');
+	      var oldSection = document.getElementById('negative-in-section');
+	      if (oldSection && oldSection.parentNode) oldSection.parentNode.removeChild(oldSection);
+	      window.updateBillFilterSummary([]);
+	      if (typeof window.updateBillFilterOptions === 'function') window.updateBillFilterOptions([]);
+	    };
+
+	    window.showBillLoadError = function (message) {
+	      var filterBar = document.getElementById('bill-filter-bar');
+	      if (!filterBar) return;
+	      filterBar.classList.remove('is-ready');
+	      filterBar.classList.add('is-error');
+	      filterBar.innerHTML = '<span>' + (message || '加载数据超时,请切换网络或稍后重试！') + '</span>';
+	      window.updateBillFilterSummary([]);
+	    };
 
     window.getFilteredBillsForSummary = function () {
       var result = localStorage.getItem('result');
@@ -321,6 +364,58 @@
       return null;
     }
 
+    function getBillTableColumnWidths(table) {
+      if (!table) return [];
+      var headerCells = table.getElementsByTagName('th');
+      var cells = headerCells.length > 0 ? headerCells : table.getElementsByTagName('td');
+      var widths = [];
+      for (var i = 0; i < cells.length; i++) {
+        var width = cells[i].getBoundingClientRect ? cells[i].getBoundingClientRect().width : cells[i].offsetWidth;
+        if (width > 0) widths.push(width);
+      }
+      return widths;
+    }
+
+    function applyNegativeInColumnStyle(tableBlock, sourceWidths) {
+      if (!tableBlock) return;
+      Array.from(tableBlock.getElementsByTagName('table')).forEach(function (table) {
+        table.style.tableLayout = 'fixed';
+      });
+      Array.from(tableBlock.getElementsByTagName('colgroup')).forEach(function (colgroup) {
+        var cols = colgroup.getElementsByTagName('col');
+        for (var colIndex = 0; colIndex < cols.length; colIndex++) {
+          if (sourceWidths && sourceWidths[colIndex]) {
+            cols[colIndex].style.width = sourceWidths[colIndex] + 'px';
+            cols[colIndex].style.maxWidth = sourceWidths[colIndex] + 'px';
+          }
+        }
+      });
+      Array.from(tableBlock.getElementsByTagName('tr')).forEach(function (row) {
+        var cells = Array.from(row.children).filter(function (cell) {
+          return cell.tagName === 'TD' || cell.tagName === 'TH';
+        });
+        for (var cellIndex = 0; cellIndex < cells.length; cellIndex++) {
+          if (sourceWidths && sourceWidths[cellIndex]) {
+            cells[cellIndex].style.width = sourceWidths[cellIndex] + 'px';
+            cells[cellIndex].style.maxWidth = sourceWidths[cellIndex] + 'px';
+          }
+        }
+        var operatorCell = cells[4];
+        if (!operatorCell) return;
+        operatorCell.className = (operatorCell.className ? operatorCell.className + ' ' : '') + 'negative-in-operator-cell';
+        operatorCell.style.overflow = 'hidden';
+        operatorCell.style.textOverflow = 'ellipsis';
+        operatorCell.style.whiteSpace = 'nowrap';
+        Array.from(operatorCell.children).forEach(function (child) {
+          child.style.display = 'block';
+          child.style.maxWidth = '100%';
+          child.style.overflow = 'hidden';
+          child.style.textOverflow = 'ellipsis';
+          child.style.whiteSpace = 'nowrap';
+        });
+      });
+    }
+
     function renderNegativeInFallbackTable(bills) {
       var oldSection = document.getElementById('negative-in-section');
       if (oldSection && oldSection.parentNode) oldSection.parentNode.removeChild(oldSection);
@@ -350,6 +445,7 @@
       section.appendChild(title);
 
       var firstTable = document.getElementsByClassName('n-data-table-table')[0];
+      var sourceWidths = getBillTableColumnWidths(firstTable);
       var sourceTableBlock = firstTable;
       var parentBlock = firstTable ? firstTable.parentNode : null;
       while (parentBlock && parentBlock !== document.body) {
@@ -372,6 +468,7 @@
           }
           if (row.parentNode) row.parentNode.removeChild(row);
         });
+        applyNegativeInColumnStyle(clonedTableBlock, sourceWidths);
         section.appendChild(clonedTableBlock);
       } else {
         var rows = bills.map(function (bill) {
@@ -390,6 +487,7 @@
           '<thead><tr><th>时间</th><th>金额</th><th>结算</th><th>标记人</th><th>操作人</th><th>备注</th></tr></thead>' +
           '<tbody>' + rows + '</tbody>' +
           '</table>';
+        applyNegativeInColumnStyle(tableWrapper, sourceWidths);
         section.appendChild(tableWrapper);
       }
 
@@ -584,10 +682,11 @@
     window.updateBillFilterOptions = function (bills) {
       bills = Array.isArray(bills) ? bills : [];
       var filterBar = document.getElementById('bill-filter-bar');
-      if (filterBar) {
-        if (bills.length > 0) filterBar.classList.add('is-ready');
-        else filterBar.classList.remove('is-ready');
-      }
+	      if (filterBar) {
+	        filterBar.classList.remove('is-error');
+	        if (bills.length > 0) filterBar.classList.add('is-ready');
+	        else filterBar.classList.remove('is-ready');
+	      }
         var replyUsers = [];
         var operators = [];
         var remarks = [];
@@ -1123,7 +1222,7 @@
   <script nomodule crossorigin id="vite-legacy-entry"
     data-src="assets/index-legacy-525cdbbd.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
   <center>
-    <div class="custom-text" style="color:#d4d4d8;">TG智蚁记账机器人售后客服   @i555i   @i999i   @i3333i</div>
+    <div class="custom-text" style="color:#d4d4d8;">TG智蚁记账机器人售后客服   @i555i   @i999i   @i3333i<br>Telegram  ©botBoss</div>
   </center><br>
 </body>
 
