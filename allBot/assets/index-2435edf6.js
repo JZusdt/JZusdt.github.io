@@ -568,10 +568,10 @@ const I = e => (T("data-v-10d5ad81"), e = e(), U(), e),
                        l = await e.get("https://api.letsvpn.bet/botWeb/options/", n);
                    }
                    // 处理返回的数据
-                   // l = l.map((e) => {
-                   //    const t = {};
-                   //    return t.label = e.startTime + (e.settlementTime ? "到 " + e.settlementTime : ""), t.value = e._id, t;
-                   // });
+                   l = l.map((e) => {
+                      const t = {};
+                      return t.label = e.startTime + (e.settlementTime ? "到 " + e.settlementTime : ""), t.value = e._id, t;
+                   });
                    be.value = l;
                    xe.value = l[0] ? l[0].value : null; // 确保 l[0] 存在
                 }
