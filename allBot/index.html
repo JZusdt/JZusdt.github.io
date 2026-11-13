@@ -7,10 +7,10 @@
   <meta http-equiv="Expires" content="0">
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0">
   <title>账单</title>
-  <link rel="stylesheet" href="assets/app.css?v=20261113-3">
+  <link rel="stylesheet" href="assets/app.css?v=20261113-4">
   <link rel="stylesheet" href="assets/flatpickr.min.css">
   <script defer src="assets/flatpickr.min.js"></script>
-  <script defer src="assets/app.js?v=20261113-3"></script>
+  <script defer src="assets/app.js?v=20261113-4"></script>
 </head>
 <body>
   <div class="custom-text">💡 点击当前账单可查历史，手机版请横屏查看 <a href="#" id="clear-highlights">清理所有点击痕迹</a> <b id="namechat"></b>
@@ -40,8 +40,8 @@
   <div class="custom-text2 date-controls" id="date-controls" hidden>
     <span>按时间查</span>
     <div class="date-range">
-      <input type="text" id="start-date-input" aria-label="开始时间">
-      <input type="text" id="end-date-input" aria-label="截止时间">
+      <label class="date-field"><span>开始时间</span><input type="text" id="start-date-input" aria-label="开始时间"></label>
+      <label class="date-field"><span>截止时间</span><input type="text" id="end-date-input" aria-label="截止时间"></label>
     </div>
   </div>
   <div id="bill-filter-bar" class="bill-filter-bar">
