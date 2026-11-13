@@ -4,7 +4,7 @@
 
   const API_SERVERS = ['https://bot.letsvpn.bet', 'https://api.letsvpn.bet'];
   const REQUEST_TIMEOUT = 30000;
-  const ASSET_VERSION = '20261113-4';
+  const ASSET_VERSION = '20261113-5';
   const ALL = '全部';
   const isMobile = window.screen.width < 1000;
   const theme = isMobile ? 'theme-mobile-' : 'theme-desktop-';
@@ -15,6 +15,7 @@
     groupType: ['1', '2', '3', '4'].includes(readCookie('okradio')) ? readCookie('okradio') : '1',
     selectedGroup: '0',
     groupsLoaded: false,
+    groups: [],
     periods: [],
     periodId: null,
     report: emptyReport(),
@@ -37,6 +38,8 @@
     filterBar: document.getElementById('bill-filter-bar'),
     summary: document.getElementById('bill-filter-summary'),
     groupSelect: document.getElementById('fruits'),
+    groupSearch: document.getElementById('group-search'),
+    groupSearchStatus: document.getElementById('group-search-status'),
     menu: document.getElementById('history-menu'),
     tooltip: document.getElementById('bill-tooltip')
   };
@@ -68,14 +71,28 @@
       range.append(start, end);
       container.replaceChildren(element('span', '', '按时间查'), range);
     }
-    // 同时兼容上一版尚未带起止标识的日期结构。
-    [['start-date-input', '开始时间'], ['end-date-input', '截止时间']].forEach(([id, title]) => {
-      const input = document.getElementById(id);
-      if (input.closest('.date-field')) return;
-      const field = element('label', 'date-field');
-      input.before(field);
-      field.append(element('span', '', title), input);
-    });
+    // 日期保持 botWeb 的左右拼接结构，也兼容缓存中的上下标签布局。
+    const range = document.querySelector('#date-controls .date-range');
+    const start = document.getElementById('start-date-input');
+    const end = document.getElementById('end-date-input');
+    range.replaceChildren(start, end);
+    start.title = '开始时间';
+    end.title = '截止时间';
+    if (!document.getElementById('group-search')) {
+      const select = document.getElementById('fruits');
+      const picker = element('div', 'group-picker');
+      const search = element('input');
+      search.type = 'search';
+      search.id = 'group-search';
+      search.placeholder = '输入群名称关键词';
+      search.setAttribute('aria-label', '搜索群组');
+      search.autocomplete = 'off';
+      const status = element('span', 'group-search-status');
+      status.id = 'group-search-status';
+      status.setAttribute('role', 'status');
+      select.before(picker);
+      picker.append(search, select, status);
+    }
     if (!document.getElementById('bill-filter-bar')) {
       const bar = element('div', 'bill-filter-bar');
       bar.id = 'bill-filter-bar';
@@ -103,11 +120,23 @@
       summary.id = 'bill-filter-summary';
       document.getElementById('app').before(bar, summary);
     }
-    // 旧 HTML 的无版本样式地址也要更新，否则新控件仍可能套用旧 CSS。
+    // 校验实际加载的样式内容，而不只依赖 URL 上的版本号。
     const stylesheet = new URL('app.css', scriptDirectory);
     stylesheet.searchParams.set('v', ASSET_VERSION);
-    const link = Array.from(document.querySelectorAll('link[rel="stylesheet"]')).find(link => new URL(link.href).pathname === stylesheet.pathname);
-    if (link && link.href !== stylesheet.href) link.href = stylesheet.href;
+    let link = Array.from(document.querySelectorAll('link[rel="stylesheet"]')).find(link => new URL(link.href).pathname === stylesheet.pathname);
+    if (!link) { link = document.createElement('link'); link.rel = 'stylesheet'; document.head.appendChild(link); }
+    let retried = false;
+    const verifyStyles = () => {
+      const version = getComputedStyle(document.documentElement).getPropertyValue('--allbot-ui-version').trim();
+      if (version === ASSET_VERSION || retried) return;
+      retried = true;
+      stylesheet.searchParams.set('reload', Date.now());
+      link.href = stylesheet.href;
+    };
+    link.addEventListener('load', verifyStyles);
+    link.addEventListener('error', verifyStyles);
+    if (link.href !== stylesheet.href) link.href = stylesheet.href;
+    else if (link.sheet) verifyStyles();
   }
 
   function text(value) { return value == null ? '' : String(value); }
@@ -257,12 +286,23 @@
     Object.assign(parameters, { grouptype: state.groupType, token: state.token });
     const result = await requestWithFallback('group', parameters, value => value && (value.token || (value.group && typeof value.group === 'object')));
     if (result.token) { clearToken(); redirectToLogin(); return false; }
-    elements.groupSelect.replaceChildren(new Option('请选择群组', '0'));
-    Object.entries(result.group).forEach(([id, name]) => elements.groupSelect.add(new Option(text(name), id)));
-    state.selectedGroup = elements.groupSelect.value;
+    state.groups = Object.entries(result.group).map(([id, name]) => ({ id, name: text(name) }));
+    state.selectedGroup = '0';
+    renderGroupOptions();
     renderGroupCount(result.count);
     state.groupsLoaded = true;
     return true;
+  }
+  function renderGroupOptions() {
+    const keywords = elements.groupSearch.value.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean);
+    const matches = state.groups.filter(group => keywords.every(word => group.name.toLocaleLowerCase().includes(word)));
+    elements.groupSelect.replaceChildren(new Option(matches.length ? '请选择群组' : '没有匹配的群组', '0'));
+    matches.forEach(group => elements.groupSelect.add(new Option(group.name, group.id)));
+    // 搜索只缩小列表，不自动改变已选群组或发起账单查询。
+    const selected = state.groups.find(group => group.id === state.selectedGroup);
+    if (selected && !matches.includes(selected)) elements.groupSelect.add(new Option('已选择：' + selected.name, selected.id));
+    elements.groupSelect.value = state.selectedGroup;
+    elements.groupSearchStatus.textContent = keywords.length ? '匹配 ' + matches.length + ' 个群组' : '';
   }
   async function initializeData() {
     resetFilters();
@@ -798,7 +838,7 @@
 
     const day = new Date();
     if (state.groupType === '2') day.setDate(day.getDate() - 1);
-    const common = { minDate: '2000-01-01', dateFormat: 'Y-m-d H:i', enableTime: true, time_24hr: true, minuteIncrement: 1 };
+    const common = { minDate: '2000-01-01', dateFormat: 'Y-m-d H:i', enableTime: true, time_24hr: true, minuteIncrement: 1, disableMobile: true };
     const updateDate = (key, value) => {
       if (state[key] === value) return;
       state[key] = value;
@@ -840,7 +880,8 @@
       state.filters.splitNegativeIn = event.target.checked; renderBillTables();
     });
 
-    elements.groupSelect.addEventListener('change', () => { state.selectedGroup = elements.groupSelect.value; invalidateQuery(); });
+    elements.groupSearch.addEventListener('input', renderGroupOptions);
+    elements.groupSelect.addEventListener('change', () => { state.selectedGroup = elements.groupSelect.value; renderGroupOptions(); invalidateQuery(); });
     document.querySelectorAll('input[name="gender"]').forEach(radio => {
       radio.checked = radio.value === state.groupType;
       radio.addEventListener('change', () => {
