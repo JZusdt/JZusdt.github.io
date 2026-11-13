@@ -4,7 +4,7 @@
 
   const API_SERVERS = ['https://bot.letsvpn.bet', 'https://api.letsvpn.bet'];
   const REQUEST_TIMEOUT = 30000;
-  const ASSET_VERSION = '20261113-3';
+  const ASSET_VERSION = '20261113-4';
   const ALL = '全部';
   const isMobile = window.screen.width < 1000;
   const theme = isMobile ? 'theme-mobile-' : 'theme-desktop-';
@@ -68,6 +68,14 @@
       range.append(start, end);
       container.replaceChildren(element('span', '', '按时间查'), range);
     }
+    // 同时兼容上一版尚未带起止标识的日期结构。
+    [['start-date-input', '开始时间'], ['end-date-input', '截止时间']].forEach(([id, title]) => {
+      const input = document.getElementById(id);
+      if (input.closest('.date-field')) return;
+      const field = element('label', 'date-field');
+      input.before(field);
+      field.append(element('span', '', title), input);
+    });
     if (!document.getElementById('bill-filter-bar')) {
       const bar = element('div', 'bill-filter-bar');
       bar.id = 'bill-filter-bar';
@@ -755,6 +763,7 @@
     selectBlock.appendChild(elements.history);
     elements.historyBlock = selectBlock;
     const buttons = element('div', isMobile ? 'px-20px' : '');
+    buttons.classList.add('bill-actions');
     buttons.appendChild(elements.queryButton); buttons.appendChild(elements.exportButton);
     if (isMobile) {
       elements.history.classList.add('select');
