@@ -4,7 +4,7 @@
 
   const API_SERVERS = ['https://bot.letsvpn.bet', 'https://api.letsvpn.bet'];
   const REQUEST_TIMEOUT = 30000;
-  const ASSET_VERSION = '20261113-5';
+  const ASSET_VERSION = '20261113-6';
   const ALL = '全部';
   const isMobile = window.screen.width < 1000;
   const theme = isMobile ? 'theme-mobile-' : 'theme-desktop-';
@@ -84,7 +84,7 @@
       const search = element('input');
       search.type = 'search';
       search.id = 'group-search';
-      search.placeholder = '输入群名称关键词';
+      search.placeholder = '搜索群组';
       search.setAttribute('aria-label', '搜索群组');
       search.autocomplete = 'off';
       const status = element('span', 'group-search-status');
@@ -293,16 +293,22 @@
     state.groupsLoaded = true;
     return true;
   }
-  function renderGroupOptions() {
+  function renderGroupOptions(selectFirstMatch = false) {
+    const previousGroup = state.selectedGroup;
     const keywords = elements.groupSearch.value.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean);
     const matches = state.groups.filter(group => keywords.every(word => group.name.toLocaleLowerCase().includes(word)));
-    elements.groupSelect.replaceChildren(new Option(matches.length ? '请选择群组' : '没有匹配的群组', '0'));
+    elements.groupSelect.replaceChildren();
+    if (!keywords.length) elements.groupSelect.add(new Option('请选择群组', '0'));
+    else if (!matches.length) elements.groupSelect.add(new Option('没有匹配的群组', '0'));
     matches.forEach(group => elements.groupSelect.add(new Option(group.name, group.id)));
-    // 搜索只缩小列表，不自动改变已选群组或发起账单查询。
-    const selected = state.groups.find(group => group.id === state.selectedGroup);
-    if (selected && !matches.includes(selected)) elements.groupSelect.add(new Option('已选择：' + selected.name, selected.id));
+    if (keywords.length) {
+      if (!matches.length) state.selectedGroup = '0';
+      else if (selectFirstMatch || !matches.some(group => group.id === state.selectedGroup)) state.selectedGroup = matches[0].id;
+    }
     elements.groupSelect.value = state.selectedGroup;
     elements.groupSearchStatus.textContent = keywords.length ? '匹配 ' + matches.length + ' 个群组' : '';
+    // 搜索结果先选中第一群，仍需点击“查看账单”才查询；选择变化时清空旧筛选。
+    if (previousGroup !== state.selectedGroup) invalidateQuery();
   }
   async function initializeData() {
     resetFilters();
@@ -339,6 +345,7 @@
     clearError();
     renderBillTables();
     setLoading(false);
+    if (elements.groupSearch.value.trim() && state.selectedGroup === '0') { showError('没有匹配的群组，请修改搜索关键词'); return; }
     if (!readQueryDates()) return;
     saveStorage('result', null);
     setLoading(true);
@@ -880,7 +887,7 @@
       state.filters.splitNegativeIn = event.target.checked; renderBillTables();
     });
 
-    elements.groupSearch.addEventListener('input', renderGroupOptions);
+    elements.groupSearch.addEventListener('input', () => renderGroupOptions(true));
     elements.groupSelect.addEventListener('change', () => { state.selectedGroup = elements.groupSelect.value; renderGroupOptions(); invalidateQuery(); });
     document.querySelectorAll('input[name="gender"]').forEach(radio => {
       radio.checked = radio.value === state.groupType;
