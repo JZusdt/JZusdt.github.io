@@ -4,6 +4,7 @@
 
   const API_SERVERS = ['https://bot.letsvpn.bet', 'https://api.letsvpn.bet'];
   const REQUEST_TIMEOUT = 30000;
+  const ALL = '全部';
   const isMobile = window.screen.width < 1000;
   const theme = isMobile ? 'theme-mobile-' : 'theme-desktop-';
   const scriptDirectory = new URL('.', document.currentScript.src);
@@ -16,6 +17,7 @@
     periods: [],
     periodId: null,
     report: emptyReport(),
+    filters: { replyUser: ALL, operator: ALL, remark: ALL, splitNegativeIn: false },
     requestId: 0,
     highlights: {
       in: readStoredArray('table1HighLightRow'),
@@ -30,10 +32,17 @@
   const elements = {
     page: document.getElementById('bill-page'),
     error: document.getElementById('bill-error'),
+    filterBar: document.getElementById('bill-filter-bar'),
+    summary: document.getElementById('bill-filter-summary'),
     groupSelect: document.getElementById('fruits'),
     menu: document.getElementById('history-menu'),
     tooltip: document.getElementById('bill-tooltip')
   };
+  const filterFields = [
+    { id: 'reply-user-filter', key: 'replyUser', value: bill => text(bill.replyUser && bill.replyUser.id), label: bill => text(bill.replyUser && bill.replyUser.first_name) },
+    { id: 'operator-filter', key: 'operator', value: bill => text(bill.user && bill.user.id), label: bill => text(bill.user && bill.user.first_name) },
+    { id: 'remark-filter', key: 'remark', value: bill => text(bill.remark), label: bill => text(bill.remark) }
+  ];
   const groupDefinitions = [
     { key: 'operator', title: '按操作员分类' },
     { key: 'replyUser', title: '按标记类分组' },
@@ -197,6 +206,7 @@
     return true;
   }
   async function initializeData() {
+    resetFilters();
     clearError();
     try { if (await loadGroups()) await loadPeriods(); }
     catch (error) { showError(error.message); }
@@ -213,6 +223,7 @@
     });
   }
   async function loadPeriods() {
+    resetFilters();
     if (!state.groupId) return;
     try {
       const periods = await requestWithFallback('options', { id: state.groupId, grouptype: state.groupType, token: state.token }, value => Array.isArray(value) && value.length > 0);
@@ -223,14 +234,18 @@
     } catch (error) { showError(error.message); }
   }
   async function loadBill() {
+    resetFilters();
     if (!state.periodId) return;
     const requestId = ++state.requestId;
     clearError();
+    renderBillTables();
+    setLoading(false);
+    if (!readQueryDates()) return;
     saveStorage('result', null);
     setLoading(true);
     try {
       const report = await requestWithFallback('bill', {
-        id: state.periodId, groupId: state.groupId, checkbox: 1,
+        id: state.periodId, groupId: state.groupId, checkbox: state.dateEnabled ? 1 : 0,
         timestart: state.startDate, timeend: state.endDate, groupchuat: state.selectedGroup,
         grouptype: state.groupType, token: state.token
       }, value => value && typeof value === 'object' && !Array.isArray(value));
@@ -242,6 +257,7 @@
       const name = document.getElementById('namechat');
       name.replaceChildren();
       if (report.chat_nane) { name.appendChild(document.createElement('br')); append(name, '《 群组：' + report.chat_nane + ' 》'); }
+      updateFilterOptions();
       renderReport();
     } catch (_) {
       if (requestId !== state.requestId) return;
@@ -298,7 +314,7 @@
         label.appendChild(check);
       }
       option.appendChild(label);
-      option.addEventListener('click', () => { state.periodId = period.value; updatePeriodLabel(); closeMenu(); });
+      option.addEventListener('click', () => { state.periodId = period.value; updatePeriodLabel(); closeMenu(); invalidateQuery(); });
       list.appendChild(option);
     });
     if (!state.periods.length) list.appendChild(element('div', 'n-base-select-option', '无数据'));
@@ -323,7 +339,7 @@
       } else if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
         if (elements.menu.hidden) openMenu();
-        else if (state.periods[state.menuIndex]) { state.periodId = state.periods[state.menuIndex].value; updatePeriodLabel(); closeMenu(); }
+        else if (state.periods[state.menuIndex]) { state.periodId = state.periods[state.menuIndex].value; updatePeriodLabel(); closeMenu(); invalidateQuery(); }
       }
     });
     document.addEventListener('click', event => { if (!elements.history.contains(event.target) && !elements.menu.contains(event.target)) closeMenu(); });
@@ -447,19 +463,88 @@
     });
   }
 
-  // ── 入账和下发表格 ────────────────────────────────────────────────
+  // ── 筛选：按 ID 区分同名人员；分类与导出仍使用完整账单 ─────────────
+  function filteredBills() {
+    return state.report.bills.filter(bill => filterFields.every(field => state.filters[field.key] === ALL || field.value(bill) === state.filters[field.key]));
+  }
+  function updateFilterOptions() {
+    elements.filterBar.classList.toggle('is-ready', state.report.bills.length > 0);
+    filterFields.forEach(field => {
+      const select = document.getElementById(field.id);
+      select.replaceChildren(new Option(ALL, ALL));
+      const seen = new Set();
+      // 筛选选项按接口原始顺序排列，人员按 ID 区分同名。
+      state.report.bills.slice().reverse().forEach(bill => {
+        const value = field.value(bill);
+        if (value && !seen.has(value)) { select.add(new Option(field.label(bill) || value, value)); seen.add(value); }
+      });
+      if (state.filters[field.key] !== ALL && !seen.has(state.filters[field.key])) state.filters[field.key] = ALL;
+      select.value = state.filters[field.key];
+    });
+  }
+  function resetFilters() {
+    Object.assign(state.filters, { replyUser: ALL, operator: ALL, remark: ALL, splitNegativeIn: false });
+    filterFields.forEach(field => { document.getElementById(field.id).replaceChildren(new Option(ALL, ALL)); });
+    document.getElementById('split-negative-in-filter').checked = false;
+    elements.summary.replaceChildren();
+    elements.summary.classList.remove('is-visible');
+    elements.filterBar.classList.remove('is-ready');
+  }
+  function renderFilterSummary(bills) {
+    elements.summary.replaceChildren();
+    const active = filterFields.some(field => state.filters[field.key] !== ALL);
+    elements.summary.classList.toggle('is-visible', active);
+    if (!active) return;
+    const incoming = bills.filter(bill => bill.type === 'in');
+    const sum = (rows, key) => rows.reduce((total, row) => total + number(row[key]), 0);
+    const positive = sum(incoming.filter(bill => number(bill.baseAmount) > 0), 'baseAmount');
+    const negative = sum(incoming.filter(bill => number(bill.baseAmount) < 0), 'baseAmount');
+    const payable = sum(incoming, 'currenyAmount');
+    const paid = sum(bills.filter(bill => bill.type === 'out'), 'currenyAmount');
+    const heading = element('span', '', '筛选后总计'); heading.style.color = 'rgb(0, 176, 240)';
+    elements.summary.appendChild(append(element('div'), heading));
+    ['总明细：↓ ' + money(positive) + ' ↑ ' + money(Math.abs(negative)), '总入款：' + money(positive + negative), '应下发：' + money(payable), '已下发：' + money(paid), '待下发：' + money(payable - paid)].forEach(line => elements.summary.appendChild(element('div', '', line)));
+  }
   function renderBillTables() {
     elements.tables.replaceChildren();
-    [
-      { kind: 'in', tag: 'h1', title: '入账' },
-      { kind: 'out', tag: 'h2', title: '下发' }
-    ].forEach(section => {
+    const bills = filteredBills();
+    const sections = [
+      { kind: 'in', tag: 'h1', title: '入账', rows: bills.filter(bill => bill.type === 'in' && (!state.filters.splitNegativeIn || number(bill.baseAmount) >= 0)) }
+    ];
+    const negative = bills.filter(bill => bill.type === 'in' && number(bill.baseAmount) < 0);
+    if (state.filters.splitNegativeIn && negative.length) sections.push({ kind: 'in', tag: 'h2', title: '出账', rows: negative });
+    sections.push({ kind: 'out', tag: 'h2', title: '下发', rows: bills.filter(bill => bill.type === 'out') });
+    sections.forEach(section => {
+      const isNegativeSection = section.title === '出账';
+      const container = isNegativeSection ? element('div', 'negative-in-section') : elements.tables;
+      if (isNegativeSection) { container.id = 'negative-in-section'; elements.tables.appendChild(container); }
+      container.appendChild(element(section.tag, 'px-20px text-size-18px', ' ' + section.title + '(' + section.rows.length + '笔) '));
+      // 筛选后保持原表格的列宽和边框位置。
       const rows = state.report.bills.filter(bill => bill.type === section.kind);
-      elements.tables.appendChild(element(section.tag, 'px-20px text-size-18px', ' ' + section.title + '(' + rows.length + '笔) '));
-      const block = element('div', 'px-10px mt-15px');
-      block.appendChild(createTable(rows, billColumns(section.kind), section.kind));
-      elements.tables.appendChild(block);
+      const table = createTable(rows, billColumns(section.kind), section.kind);
+      if (!isNegativeSection) {
+        table.querySelectorAll('tbody > tr').forEach((row, index) => { if (rows[index]) row.hidden = !section.rows.includes(rows[index]); });
+        const block = element('div', 'px-10px mt-15px'); block.appendChild(table); container.appendChild(block);
+      } else {
+        // 独立出账表复用入账表列宽，保持左右边缘对齐。
+        table.querySelectorAll('tbody > tr').forEach((row, index) => { if (!section.rows.includes(rows[index])) row.remove(); });
+        const widths = Array.from(elements.tables.querySelector('table').querySelectorAll('th')).map(cell => cell.getBoundingClientRect().width);
+        table.querySelectorAll('col').forEach((col, index) => {
+          col.style.width = widths[index] + 'px'; col.style.maxWidth = widths[index] + 'px';
+        });
+        table.querySelectorAll('tr').forEach(row => {
+          Array.from(row.children).forEach((cell, index) => {
+            cell.style.width = widths[index] + 'px'; cell.style.maxWidth = widths[index] + 'px';
+            if (index === 4) {
+              cell.classList.add('negative-in-operator-cell');
+              Array.from(cell.children).forEach(child => { child.style.cssText += ';display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'; });
+            }
+          });
+        });
+        container.appendChild(table);
+      }
     });
+    renderFilterSummary(bills);
   }
 
   // ── 四种分类统计：操作员、标记、入款汇率、汇率与操作人 ──────────────
@@ -615,6 +700,7 @@
     elements.exportButton.type = 'button';
     const selectBlock = element('div', isMobile ? 'p-20px pb-10px' : '');
     selectBlock.appendChild(elements.history);
+    elements.historyBlock = selectBlock;
     const buttons = element('div', isMobile ? 'px-20px' : '');
     buttons.appendChild(elements.queryButton); buttons.appendChild(elements.exportButton);
     if (isMobile) {
@@ -634,41 +720,69 @@
     groupBlock.appendChild(elements.groups); elements.page.appendChild(groupBlock);
     elements.totals = element('div', 'px-20px pt-15px pb-20px'); elements.page.appendChild(elements.totals);
   }
+  // 修改查询条件后使旧请求失效，筛选器等待新的账单返回后再显示。
+  function invalidateQuery() {
+    state.requestId++;
+    resetFilters();
+    renderBillTables();
+    setLoading(false);
+  }
   function initializeDates() {
-    const common = { minDate: '2000-01-01', dateFormat: 'Y-m-d H:i', enableTime: true, time_24hr: true, required: true };
-    const pickers = [
+    state.dateEnabled = state.groupType !== '3';
+    document.getElementById('date-controls').hidden = !state.dateEnabled;
+    elements.historyBlock.hidden = state.dateEnabled;
+    elements.datePickers = [];
+    if (!state.dateEnabled) return;
+
+    const day = new Date();
+    if (state.groupType === '2') day.setDate(day.getDate() - 1);
+    const common = { minDate: '2000-01-01', dateFormat: 'Y-m-d H:i', enableTime: true, time_24hr: true, minuteIncrement: 1 };
+    const updateDate = (key, value) => {
+      if (state[key] === value) return;
+      state[key] = value;
+      invalidateQuery();
+    };
+    elements.datePickers = [
       { selector: '#start-date-input', key: 'startDate', hour: 0, minute: 0 },
       { selector: '#end-date-input', key: 'endDate', hour: 23, minute: 59 }
     ].map(config => flatpickr(config.selector, Object.assign({}, common, {
-      defaultDate: new Date(new Date().setHours(config.hour, config.minute, 0, 0)),
-      onChange: (_, value) => { state[config.key] = value; },
-      onReady: (_, value, picker) => picker.setDate(new Date(new Date().setHours(config.hour, config.minute, 0, 0)), true)
+      defaultDate: new Date(new Date(day).setHours(config.hour, config.minute, 0, 0)),
+      onReady: (_, value, picker) => {
+        state[config.key] = value;
+        if (picker.mobileInput) picker.mobileInput.setAttribute('aria-label', picker.input.getAttribute('aria-label'));
+      },
+      // 时分编辑会延迟触发 onChange；先同步值，并忽略重复通知。
+      onValueUpdate: (_, value) => updateDate(config.key, value),
+      onChange: (_, value) => updateDate(config.key, value)
     })));
-    const dateRadio = document.getElementById('checkbox1');
-    const currentOnly = state.groupType === '3';
-    dateRadio.disabled = currentOnly;
-    pickers.forEach(picker => {
-      picker.input.disabled = currentOnly;
-      // 与原版一致：手机端点击“按时间查”后才启用原生日期输入。
-      if (picker.mobileInput) { picker.mobileInput.disabled = true; picker.mobileInput.style.color = 'gray'; }
-    });
-    dateRadio.addEventListener('click', () => {
-      if (currentOnly) return;
-      state.dateEnabled = true;
-      elements.history.querySelector('.n-base-selection').style.display = 'none';
-      pickers.forEach(picker => {
-        if (picker.mobileInput) { picker.mobileInput.disabled = false; picker.mobileInput.style.color = 'black'; }
-      });
-      closeMenu();
-    });
+  }
+  function readQueryDates() {
+    if (!state.dateEnabled) { state.startDate = state.endDate = 0; return true; }
+    // 从选择器读取最新值，避免编辑时分后立即查询仍使用旧的时间。
+    const dates = elements.datePickers.map(picker => picker.selectedDates[0]);
+    if (dates.some(date => !date || Number.isNaN(date.getTime()))) {
+      showError('请选择开始时间和截止时间');
+      return false;
+    }
+    if (dates[0] > dates[1]) { showError('开始时间不能晚于截止时间'); return false; }
+    [state.startDate, state.endDate] = dates.map((date, index) => elements.datePickers[index].formatDate(date, 'Y-m-d H:i'));
+    return true;
   }
   function bindEvents() {
     elements.queryButton.addEventListener('click', () => !state.groupsLoaded ? initializeData() : state.periodId ? loadBill() : loadPeriods());
     elements.exportButton.addEventListener('click', exportExcel);
-    elements.groupSelect.addEventListener('change', () => { state.selectedGroup = elements.groupSelect.value; });
+    filterFields.forEach(field => document.getElementById(field.id).addEventListener('change', event => {
+      state.filters[field.key] = event.target.value; renderBillTables();
+    }));
+    document.getElementById('split-negative-in-filter').addEventListener('change', event => {
+      state.filters.splitNegativeIn = event.target.checked; renderBillTables();
+    });
+
+    elements.groupSelect.addEventListener('change', () => { state.selectedGroup = elements.groupSelect.value; invalidateQuery(); });
     document.querySelectorAll('input[name="gender"]').forEach(radio => {
       radio.checked = radio.value === state.groupType;
       radio.addEventListener('change', () => {
+        invalidateQuery();
         const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toUTCString();
         document.cookie = 'okradio=' + radio.value + '; expires=' + expires + '; path=/';
         location.reload();
