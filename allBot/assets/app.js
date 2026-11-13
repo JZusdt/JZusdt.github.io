@@ -4,6 +4,7 @@
 
   const API_SERVERS = ['https://bot.letsvpn.bet', 'https://api.letsvpn.bet'];
   const REQUEST_TIMEOUT = 30000;
+  const ASSET_VERSION = '20261113-3';
   const ALL = '全部';
   const isMobile = window.screen.width < 1000;
   const theme = isMobile ? 'theme-mobile-' : 'theme-desktop-';
@@ -29,6 +30,7 @@
     endDate: 0,
     menuIndex: 0
   };
+  preparePageStructure();
   const elements = {
     page: document.getElementById('bill-page'),
     error: document.getElementById('bill-error'),
@@ -51,6 +53,55 @@
   ];
 
   // ── 基础工具：数据、存储、DOM ──────────────────────────────────────
+  function preparePageStructure() {
+    // 浏览器可能保留上一版 HTML。先补齐新增控件，避免缺失节点中断整个页面。
+    const dateControls = document.getElementById('date-controls');
+    if (!dateControls) {
+      const start = document.getElementById('start-date-input');
+      const end = document.getElementById('end-date-input');
+      const container = start.parentElement;
+      container.id = 'date-controls';
+      container.classList.add('date-controls');
+      const range = element('div', 'date-range');
+      start.setAttribute('aria-label', '开始时间');
+      end.setAttribute('aria-label', '截止时间');
+      range.append(start, end);
+      container.replaceChildren(element('span', '', '按时间查'), range);
+    }
+    if (!document.getElementById('bill-filter-bar')) {
+      const bar = element('div', 'bill-filter-bar');
+      bar.id = 'bill-filter-bar';
+      bar.hidden = true;
+      const title = element('label', '', '筛选器');
+      title.style.color = 'rgb(118, 146, 60)';
+      bar.appendChild(title);
+      [['reply-user-filter', '标记人'], ['remark-filter', '备注'], ['operator-filter', '操作人']].forEach(([id, title]) => {
+        const label = element('label');
+        const caption = element('span', '', title);
+        caption.style.color = 'black';
+        const select = element('select');
+        select.id = id;
+        select.add(new Option(ALL, ALL));
+        label.append(caption, select);
+        bar.appendChild(label);
+      });
+      const label = element('label');
+      const checkbox = element('input');
+      checkbox.type = 'checkbox';
+      checkbox.id = 'split-negative-in-filter';
+      label.append(checkbox, element('span', '', '出账独立显示'));
+      bar.appendChild(label);
+      const summary = element('div', 'bill-filter-summary');
+      summary.id = 'bill-filter-summary';
+      document.getElementById('app').before(bar, summary);
+    }
+    // 旧 HTML 的无版本样式地址也要更新，否则新控件仍可能套用旧 CSS。
+    const stylesheet = new URL('app.css', scriptDirectory);
+    stylesheet.searchParams.set('v', ASSET_VERSION);
+    const link = Array.from(document.querySelectorAll('link[rel="stylesheet"]')).find(link => new URL(link.href).pathname === stylesheet.pathname);
+    if (link && link.href !== stylesheet.href) link.href = stylesheet.href;
+  }
+
   function text(value) { return value == null ? '' : String(value); }
   function number(value) { return Number.isFinite(Number(value)) ? Number(value) : 0; }
   function money(value) { return number(value).toFixed(2); }
@@ -468,6 +519,7 @@
     return state.report.bills.filter(bill => filterFields.every(field => state.filters[field.key] === ALL || field.value(bill) === state.filters[field.key]));
   }
   function updateFilterOptions() {
+    elements.filterBar.hidden = state.report.bills.length === 0;
     elements.filterBar.classList.toggle('is-ready', state.report.bills.length > 0);
     filterFields.forEach(field => {
       const select = document.getElementById(field.id);
@@ -483,6 +535,7 @@
     });
   }
   function resetFilters() {
+    elements.filterBar.hidden = true;
     Object.assign(state.filters, { replyUser: ALL, operator: ALL, remark: ALL, splitNegativeIn: false });
     filterFields.forEach(field => { document.getElementById(field.id).replaceChildren(new Option(ALL, ALL)); });
     document.getElementById('split-negative-in-filter').checked = false;
