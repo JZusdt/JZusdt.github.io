@@ -3,7 +3,8 @@
   'use strict';
 
   const API_SERVERS = ['https://bot.letsvpn.bet', 'https://api.letsvpn.bet'];
-  const REQUEST_TIMEOUT = 30000;
+  const PRIMARY_REQUEST_TIMEOUT = 8000;
+  const BACKUP_REQUEST_TIMEOUT = 30000;
   const ALL = '全部';
   const isMobile = window.screen.width < 1000;
   const theme = isMobile ? 'theme-mobile-' : 'theme-desktop-';
@@ -13,6 +14,8 @@
     token: readCookie('codekey'),
     periods: [],
     periodId: null,
+    periodsLoading: false,
+    billLoading: false,
     report: emptyReport(),
     filters: { replyUser: ALL, operator: ALL, remark: ALL, splitNegativeIn: false },
     requestId: 0,
@@ -130,7 +133,7 @@
   }
 
   // ── API：保留原参数、主备接口和登录失效行为 ────────────────────────
-  function requestJSON(url) {
+  function requestJSON(url, timeout) {
     return new Promise((resolve, reject) => {
       const request = new XMLHttpRequest();
       request.open('GET', url);
@@ -141,7 +144,7 @@
         try { token = decodeURIComponent(authorization); } catch (_) { /* Preserve an unencoded cookie. */ }
         request.setRequestHeader('Authorization', 'bearer ' + token);
       }
-      request.timeout = REQUEST_TIMEOUT;
+      request.timeout = timeout;
       request.onload = () => {
         if (request.status < 200 || request.status >= 300) return reject(new Error('HTTP ' + request.status));
         try { resolve(JSON.parse(request.responseText)); } catch (error) { reject(error); }
@@ -153,9 +156,10 @@
   async function requestWithFallback(endpoint, parameters, isValid) {
     const query = new URLSearchParams();
     Object.keys(parameters).forEach(key => { if (parameters[key] != null) query.set(key, parameters[key]); });
-    for (const server of API_SERVERS) {
+    for (const [index, server] of API_SERVERS.entries()) {
       try {
-        const result = await requestJSON(server + '/jzWeb/' + endpoint + '/?' + query);
+        const timeout = index === 0 ? PRIMARY_REQUEST_TIMEOUT : BACKUP_REQUEST_TIMEOUT;
+        const result = await requestJSON(server + '/jzWeb/' + endpoint + '/?' + query, timeout);
         if (isValid(result)) return result;
       } catch (_) { /* 主接口失败后尝试备用接口。 */ }
     }
@@ -176,7 +180,8 @@
     Array.from(elements.filterBar.children).forEach(child => { child.hidden = false; });
   }
   function setLoading(loading) {
-    elements.page.setAttribute('aria-busy', loading);
+    state.billLoading = loading;
+    updateHistoryLoading();
     elements.page.querySelectorAll('.n-data-table').forEach(table => {
       table.classList.toggle('n-data-table--loading', loading);
       const empty = table.querySelector('.n-data-table-empty');
@@ -187,7 +192,10 @@
     });
   }
   async function loadPeriods() {
-    if (!state.groupId) return;
+    if (!state.groupId || state.periodsLoading) return;
+    state.periodsLoading = true;
+    clearError();
+    updatePeriodLabel();
     try {
       const periods = await requestWithFallback('options', { id: state.groupId, token: state.token }, Array.isArray);
       state.periods = periods.map(period => ({ value: text(period._id), label: text(period.startTime) + (period.settlementTime ? '到 ' + period.settlementTime : '') }));
@@ -195,6 +203,10 @@
       updatePeriodLabel();
       await loadBill();
     } catch (error) { showError(error.message); }
+    finally {
+      state.periodsLoading = false;
+      updatePeriodLabel();
+    }
   }
   async function loadBill() {
     if (!state.periodId) return;
@@ -239,9 +251,20 @@
   function updatePeriodLabel() {
     const selected = state.periods.find(period => period.value === state.periodId);
     state.menuIndex = Math.max(0, state.periods.findIndex(period => period.value === state.periodId));
-    const label = selected ? selected.label : '请选择';
+    const label = selected ? selected.label : (state.periodsLoading ? '账单加载中…' : '请选择');
     elements.history.querySelector('.n-base-selection-input__content').textContent = label;
     elements.history.querySelector('.n-base-selection-input').title = label;
+    updateHistoryLoading();
+  }
+  function updateHistoryLoading() {
+    // 主接口和备用接口共用加载状态，切换接口时保持转圈。
+    const loading = state.periodsLoading || state.billLoading;
+    elements.page.setAttribute('aria-busy', loading);
+    elements.history.classList.toggle('is-loading', loading);
+    elements.history.querySelector('[role="combobox"]').setAttribute('aria-busy', loading);
+    const suffix = elements.history.querySelector('.n-base-suffix');
+    suffix.setAttribute('aria-label', loading ? '账单加载中' : '展开历史账单');
+    elements.queryButton.disabled = state.periodsLoading;
   }
   function closeMenu() {
     elements.menu.hidden = true;
